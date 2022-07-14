@@ -1,82 +1,42 @@
-let imgPlace = document.querySelector('.img-voting img');
 let pageTool = {
     activeName: '',
     activeDom: null,
     pageOpened: 'main',
     otherPages: ['voting', 'breeds', 'gallery'],
     likesPages: ['likes', 'favorite', 'dislikes'],
-    imgShowing: '',
-    orderImg: 1,
+    orderImgURL: 1,
     gridsCollection: {},
-    creatGrid: function (data) {
-        if (this.gridsCollection[this.activeName]) {
-            return;
+    votingPageSettings: {
+        imgShowingUrl: 'img/test-cat.png',
+        imgDom: null,
+        imgId: '',
+        loaderDom: null,
+    },
+    breedsPageSettings: {
+        loaderDom: null,
+        limit: 10,
+        sort: 'Random',
+        sortAscDom: null,
+        sortDescDom: null,
+    },
+    createGrid: function (data, pageName = this.activeName) {
+        this.gridsCollection[pageName] = true;
+        let gridDomWrapper;
+        if (pageName === 'favorite') {
+            this._createGridFavorite(data)
         }
-        let gridDom;
-        if (this.likesPages.includes(this.activeName)) {
-            gridDom = document.querySelector(`.${this.activeName}-page .grid`);
-            gridDom.innerHTML = '';
+        if (pageName === 'likes') {
+            this._createLikesDislikesData(data)
+        }
+        if (pageName === 'dislikes') {
+            this._createLikesDislikesData(data)
+        }
+        if (this.otherPages.includes(pageName) && pageName !== 'voting') {
+            gridDomWrapper = document.querySelector(`.${pageName} .grid-wraper`);
+            gridDomWrapper.innerHTML = '';
             while (data.length > 10) {
-                let newData = data.splice(0, 10)
-                newData.forEach(elem => {
-                    let url = elem.image.url
-                    let div = document.createElement('div');
-                    let img = document.createElement('img');
-                    img.src = url;
-                    div.append(img);
-                    let deleteButton = document.createElement('div')
-                    deleteButton.classList.add('delete')
-                    deleteButton.classList.add('none')
-                    deleteButton.addEventListener('click', (e) => {
-                        let id = e.target.previousSibling.src.split('/')
-                        id = id[id.length - 1].split('.')[0]
-                        // requestTool.deleteFavorite(id);
-                        e.target.previousSibling.remove()
-                    });
-                    div.append(deleteButton);
-                    img.addEventListener('mouseover', (e) => {
-                        e.target.nextSibling.classList.add('block')
-                        e.target.nextSibling.classList.remove('none')
-                    });
-                    img.addEventListener('mouseout', (e) => {
-                        e.target.nextSibling.classList.add('none')
-                        e.target.nextSibling.classList.remove('block')
-                    });
-                    gridDom.append(div);
-                })
-            }
-            data.forEach(elem => {
-                let url = elem.image.url
-                let div = document.createElement('div');
-                div.classList.add('test')
-                let img = document.createElement('img');
-                img.src = url;
-                div.append(img);
-                let deleteButton = document.createElement('div')
-                deleteButton.classList.add('delete')
-                // deleteButton.classList.add('none')
-                deleteButton.addEventListener('click', (e) => {
-                    let id = e.target.previousSibling.src.split('/')
-                    id = id[id.length - 1].split('.')[0]
-                    // requestTool.deleteFavorite(id);
-                    e.target.previousSibling.remove()
-                });
-                div.append(deleteButton);
-                // div.addEventListener('mouseover', (e) => {
-                //     console.log(e.target)
-                //     e.target.nextSibling.classList.add('block')
-                //     e.target.nextSibling.classList.remove('none')
-                // });
-                // div.addEventListener('mouseout', (e) => {
-                //     e.target.nextSibling.classList.add('none')
-                //     e.target.nextSibling.classList.remove('block')
-                // });
-                gridDom.append(div);
-            })
-            this.gridsCollection[this.activeName] = true;
-        } else {
-            gridDom = document.querySelector(`.${this.activeName} .grid`);
-            while (data.length > 10) {
+                let gridDiv = document.createElement('div')
+                gridDiv.classList.add('grid')
                 let newData = data.splice(0, 10)
                 newData.forEach(elem => {
                     let url = elem.url
@@ -84,29 +44,158 @@ let pageTool = {
                     let img = document.createElement('img');
                     img.src = url;
                     div.append(img);
-                    gridDom.append(div);
+                    gridDiv.append(div)
                 })
+                gridDomWrapper.append(gridDiv);
             }
+            let gridDiv = document.createElement('div')
+            gridDiv.classList.add('grid')
             data.forEach(elem => {
                 let url = elem.url
                 let div = document.createElement('div');
                 let img = document.createElement('img');
                 img.src = url;
                 div.append(img);
-                gridDom.append(div);
+                gridDiv.append(div)
             })
-            this.gridsCollection[this.activeName] = true;
+            gridDomWrapper.append(gridDiv);
         }
     },
+    // _data: function (data, callback) {
+    //     let data = [];
+    //     likes.forEach(elem => {
+    //         requestTool.getId(elem.image_id)
+    //             .then(newElem => {
+    //                 let elemObj = {};
+    //                 elemObj.id = elem.id;
+    //                 elemObj.image_id = elem.image_id;
+    //                 elemObj.image.url = newElem.url
+    //                 data.push(elemObj)
+    //             });
+    //     });
+    //     return data;
+    // },
+    // _createLikesDislikesData: function (data, pageName = this.activeName) {
+    //     let likes = [];
+    //     let dislikes = [];
+    //     data.forEach(elem => {
+    //         if (elem.value === 1) {
+    //             likes.push(elem);
+    //         } else {
+    //             dislikes.push(elem);
+    //         }
+    //     });
+    //     if (likes.length > 0) {
+    //         this._data(likes, this._createGridFavorite)
+    //     }
+    //     if (dislikes.length > 0) {
+    //         dislikes = this._data(dislikes)
+    //         this._createGridFavorite(dislikes, 'dislikes')
+    //     }
+    // },
+    _createGridFavorite: function (data, pageName = this.activeName) {
+        let gridDomWrapper = document.querySelector(`.${pageName}-page .grid-wraper`);
+        gridDomWrapper.innerHTML = '';
+        while (data.length > 10) {
+            let gridDiv = document.createElement('div')
+            gridDiv.classList.add('grid')
+            let newData = data.splice(0, 10)
+            newData.forEach(elem => {
+                let url = elem.image.url
+                let div = document.createElement('div');
+                let img = document.createElement('img');
+                img.classList.add(`${elem.id}`)
+                img.src = url;
+                div.append(img);
+                let deleteButton = document.createElement('div')
+                deleteButton.classList.add('delete')
+                deleteButton.classList.add('none')
+                deleteButton.addEventListener('click', (e) => {
+                    let id = e.target.previousSibling.classList[0]
+                    let imgId = e.target.previousSibling.classList[1]
+                    requestTool.deleteFavorite(id);
+                    userData._newLog(pageName, imgId);
+                    userData._showLogs()
+                    e.target.parentElement.remove()
+                });
+                div.append(deleteButton);
+                img.addEventListener('mouseover', (e) => {
+                    e.target.nextSibling.classList.add('block')
+                    e.target.nextSibling.classList.remove('none')
+                });
+                img.addEventListener('mouseout', (e) => {
+                    e.target.nextSibling.classList.add('none')
+                    e.target.nextSibling.classList.remove('block')
+                });
+                gridDiv.append(div)
+            })
+            gridDomWrapper.append(gridDiv);
+        }
+        let gridDiv = document.createElement('div')
+        gridDiv.classList.add('grid')
+        data.forEach(elem => {
+            let url = elem.image.url
+            let div = document.createElement('div');
+            let img = document.createElement('img');
+            img.classList.add(`${elem.id}`)
+            img.classList.add(`${elem.image_id}`)
+            img.src = url;
+            div.append(img);
+            let deleteButton = document.createElement('div')
+            deleteButton.classList.add('delete')
+            deleteButton.classList.add('none')
+            deleteButton.addEventListener('click', (e) => {
+                let id = e.target.previousSibling.classList[0]
+                let imgId = e.target.previousSibling.classList[1]
+                requestTool.deleteFavorite(id);
+                userData._newLog(pageName, imgId);
+                userData._showLogs()
+                e.target.parentElement.remove()
+            });
+            div.append(deleteButton);
+            img.addEventListener('mouseover', (e) => {
+                e.target.nextSibling.classList.add('block')
+                e.target.nextSibling.classList.remove('none')
+            });
+            img.addEventListener('mouseout', (e) => {
+                e.target.nextSibling.classList.add('none')
+                e.target.nextSibling.classList.remove('block')
+            });
+            gridDiv.append(div)
+        })
+        gridDomWrapper.append(gridDiv);
+        this.gridsCollection[pageName] = true;
+    },
     showImg: function () {
-        if (requestTool.data) {
-            imgPlace.src = requestTool.data[0].url;
-            pageTool.imgShowing = requestTool.data[0];
-        } else {
-            requestTool.getRequest(requestTool.url)
+        if (this.votingPageSettings.imgDom) {
+            this.votingPageSettings.loaderDom.classList.add('block')
+            this.votingPageSettings.loaderDom.classList.remove('none')
+            requestTool.getRequest(1, 'Random')
                 .then(data => {
-                    imgPlace.src = requestTool.data[0].url;
-                    pageTool.imgShowing = requestTool.data[0];
+                    this.votingPageSettings.imgShowingUrl = data[0].url;
+                    this.votingPageSettings.imgDom.src = data[0].url;
+                    this.votingPageSettings.loaderDom.classList.add('block')
+                    this.votingPageSettings.loaderDom.classList.remove('none')
+                    this.votingPageSettings.imgDom.addEventListener('load', (e) => {
+                        this.votingPageSettings.loaderDom.classList.add('none')
+                        this.votingPageSettings.loaderDom.classList.remove('block')
+                        this.votingPageSettings.imgId = data[0].id;
+                    });
+                });
+        } else {
+            this.votingPageSettings.imgDom = document.querySelector('.img-voting img');
+            this.votingPageSettings.loaderDom = document.querySelector('.voting .loader')
+            this.votingPageSettings.loaderDom.classList.add('block')
+            this.votingPageSettings.loaderDom.classList.remove('none')
+            requestTool.getRequest(1, 'Random')
+                .then(data => {
+                    this.votingPageSettings.imgShowingUrl = data[0].url;
+                    this.votingPageSettings.imgDom.src = data[0].url;
+                    this.votingPageSettings.imgDom.addEventListener('load', (e) => {
+                        this.votingPageSettings.loaderDom.classList.add('none')
+                        this.votingPageSettings.loaderDom.classList.remove('block')
+                        this.votingPageSettings.imgId = data[0].id;
+                    });
                 });
         }
     },
@@ -149,9 +238,6 @@ let pageTool = {
         }
         return;
     },
-    _showGrid: function (data) {
-
-    },
     _defaultActive: function () {
         if (this.otherPages.includes(this.activeName)) {
             this.activeDom.classList.remove('active-nav');
@@ -182,22 +268,6 @@ let pageTool = {
         page.classList.add('none');
         page.classList.remove('block');
     },
-    _nextImg: function () {
-        if (this.orderImg < requestTool.data.length) {
-            imgPlace.src = requestTool.data[this.orderImg].url;
-            this.imgShowing = requestTool.data[this.orderImg]
-            this.orderImg++
-        } else {
-            requestTool.page++
-            requestTool.getRequest(requestTool.url, requestTool.limit, requestTool.page)
-                .then(data => {
-                    this.orderImg = 0;
-                    imgPlace.src = requestTool.data[this.orderImg].url;
-                    this.imgShowing = requestTool.data[this.orderImg]
-                    this.orderImg++
-                })
-        }
-    },
 };
 
 let userData = {
@@ -208,44 +278,76 @@ let userData = {
     newAction: function (target, type) {
         if (target.parentElement.classList[0] === 'voting-tools') {
             if (type === 'like') {
-                this.likes.push(requestTool.data[pageTool.orderImg - 1]);
-                this._newLog(type);
-                this._showLogs()
-                pageTool._nextImg()
+                if (pageTool.votingPageSettings.imgId) {
+                    let id = pageTool.votingPageSettings.imgId;
+                    this._newLog(type);
+                    this._showLogs();
+                    pageTool.votingPageSettings.imgId = '';
+                    requestTool.postLikeOrNot(id, type)
+                    pageTool.showImg()
+                } else {
+                    return;
+                }
             }
             if (type === 'favorite') {
-                let id = {}
-                id.image_id = requestTool.data[pageTool.orderImg - 1].id;
-                id = JSON.stringify(id)
-                requestTool.postFavorite(id)
-                pageTool._nextImg()
+                if (pageTool.votingPageSettings.imgId) {
+                    let id = pageTool.votingPageSettings.imgId;
+                    this._newLog(type);
+                    this._showLogs();
+                    pageTool.votingPageSettings.imgId = '';
+                    requestTool.postFavorite(id)
+                    pageTool.showImg()
+                } else {
+                    return;
+                }
             }
             if (type === 'dislike') {
-                this.dislikes.push(requestTool.data[pageTool.orderImg - 1]);
-                this._newLog(type);
-                this._showLogs()
-                pageTool._nextImg()
+                if (pageTool.votingPageSettings.imgId) {
+                    let id = pageTool.votingPageSettings.imgId;
+                    this._newLog(type);
+                    this._showLogs();
+                    pageTool.votingPageSettings.imgId = '';
+                    requestTool.postLikeOrNot(id)
+                    pageTool.showImg()
+                } else {
+                    return;
+                }
             }
         }
     },
-    _newLog: function (type) {
+    _newLog: function (type, imgId = pageTool.votingPageSettings.imgId) {
         let newLog = {};
         newLog.date = new Date;
         newLog.type = type;
-        newLog.id = pageTool.imgShowing.id
+        newLog.id = pageTool.votingPageSettings.imgId;
         userData.logs.push(newLog);
     },
     _showLogs: function () {
-        this.logs.forEach((elem) => {
-            let logsListDom = document.querySelector('.log-list');
-            let time = this._createTime(elem.date);
-            let text = `Image ID: <b>${elem.id}</b> was added to ${elem.type}s`
-            let logDom = document.createElement('div');
-            logDom.classList.add('log');
-            logDom.innerHTML = `<div>${time}</div><div>${text}</div><div class="log-logo-${elem.type}"></div>`;
-            logsListDom.append(logDom);
-        });
-        this.logs = [];
+        if (pageTool.otherPages.includes(pageTool.activeName)) {
+            this.logs.forEach((elem) => {
+                let logsListDom = document.querySelector(`.${pageTool.activeName} .log-list`);
+                let time = this._createTime(elem.date);
+                let text = `Image ID: <b>${elem.id}</b> was added to ${elem.type}s`
+                let logDom = document.createElement('div');
+                logDom.classList.add('log');
+                logDom.innerHTML = `<div>${time}</div><div>${text}</div><div class="log-logo-${elem.type}"></div>`;
+                logsListDom.append(logDom);
+            });
+            this.logs = [];
+        } else {
+            this.logs.forEach((elem) => {
+                let logsListDom = document.querySelector(`.${pageTool.activeName}-page .log-list`);
+                let time = this._createTime(elem.date);
+                let text = `Image ID: <b>${elem.id}</b> was removed from ${elem.type}s`
+                let logDom = document.createElement('div');
+                logDom.classList.add('log');
+                logDom.innerHTML = `<div>${time}</div><div>${text}</div><div class="log-logo-${elem.type}"></div>`;
+                logsListDom.append(logDom);
+            });
+            this.logs = [];
+        }
+
+
     },
     _createTime: function (date) {
         let hours = date.getHours();
@@ -261,11 +363,15 @@ let userData = {
 let requestTool = {
     data: null,
     api: '612199da-1a7c-480a-be2b-0e3c6ef1f518',
-    limit: 10,
-    page: 100,
-    url: `https://api.thecatapi.com/v1/images/search?limit=10&order=Desc&`,
-    getRequest: async function (url, limit = 10, page = 120) {
-        let response = await fetch(`https://api.thecatapi.com/v1/images/search?limit=${limit}&page=${page}&order=Desc&has_breeds=0`, {
+    users: {
+        noUser: '',
+        user1: 'patrichia',
+        user2: '123123asdasdxxxz',
+    },
+    order: ['RANDOM', 'Asc', 'Desc'],
+    url: `https://api.thecatapi.com/v1/images/search?limit=10&order=RANDOM`,
+    getRequest: async function (limit = 10, order = 'RANDOM') {
+        let response = await fetch(`https://api.thecatapi.com/v1/images/search?limit=${limit}&order=${order}&size=small&has_breeds=true`, {
             headers: {
                 'Content-type': 'application/json',
                 'x-api-key': this.api
@@ -273,6 +379,9 @@ let requestTool = {
         });
         if (response.ok) {
             this.data = await response.json();
+            if (limit == 1) {
+                pageTool.votingPageSettings.imgId = this.data[0].id;
+            }
             return this.data
         } else {
             throw new Error(`GET не сработал этот ERROR`);
@@ -291,8 +400,8 @@ let requestTool = {
             throw new Error(`GET не сработал этот ERROR`);
         };
     },
-    getFavorite: async function () {
-        let response = await fetch(`https://api.thecatapi.com/v1/favourites/`, {
+    getLikes: async function () {
+        let response = await fetch(`https://api.thecatapi.com/v1/votes?sub_id=${this.users.user1}`, {
             headers: {
                 'Content-type': 'application/json',
                 'x-api-key': this.api
@@ -305,7 +414,40 @@ let requestTool = {
             throw new Error(`GET не сработал этот ERROR`);
         };
     },
-    postFavorite: async function (data) {
+    getFavorite: async function () {
+        let response = await fetch(`https://api.thecatapi.com/v1/favourites?sub_id=${this.users.user1}`, {
+            headers: {
+                'Content-type': 'application/json',
+                'x-api-key': this.api
+            },
+        });
+        if (response.ok) {
+            userData.favorite = await response.json();
+            return userData.favorite
+        } else {
+            throw new Error(`GET не сработал этот ERROR`);
+        };
+    },
+    postLikeOrNot: async function (id, like) {
+        let data = {};
+        data.sub_id = this.users.user1;
+        data.image_id = id;
+        like === 'like' ? data.value = 1 : data.value = 0;
+        data = JSON.stringify(data);
+        await fetch(`https://api.thecatapi.com/v1/votes`, {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json',
+                'x-api-key': this.api,
+            },
+            body: data,
+        });
+    },
+    postFavorite: async function (id) {
+        let data = {};
+        data.sub_id = this.users.user1;
+        data.image_id = id;
+        data = JSON.stringify(data);
         await fetch(`https://api.thecatapi.com/v1/favourites`, {
             method: 'POST',
             headers: {
@@ -326,17 +468,82 @@ let requestTool = {
         if (response.ok) {
         } else {
             let data = await response.json();
-            console.log(data)
             throw new Error(`GET не сработал этот ERROR`);
         };
     },
 }
 
+pageTool.showImg();
+
+requestTool.getRequest(pageTool.breedsPageSettings.limit, pageTool.breedsPageSettings.sort)
+    .then(data => {
+        pageTool.createGrid(data, 'breeds');
+        pageTool.createGrid(data, 'gallery');
+    });
+
+document.querySelector('.limit').addEventListener('change', (e) => {
+    let limit = e.target.value.split(' ')[1];
+    pageTool.breedsPageSettings.limit = limit;
+    requestTool.getRequest(limit, pageTool.breedsPageSettings.sort)
+        .then(data => {
+            pageTool.createGrid(data);
+        });
+});
+
+pageTool.breedsPageSettings.sortAscDom = document.querySelector('.Asc')
+pageTool.breedsPageSettings.sortAscDom.addEventListener('click', () => {
+    if (pageTool.breedsPageSettings.sort === 'Asc') {
+        pageTool.breedsPageSettings.sort = 'Random';
+        pageTool.breedsPageSettings.sortAscDom.classList.remove('sort1-active')
+        requestTool.getRequest(pageTool.breedsPageSettings.limit, pageTool.breedsPageSettings.sort)
+            .then(data => {
+                pageTool.createGrid(data)
+            });
+    } else {
+        pageTool.breedsPageSettings.sort = 'Asc';
+        pageTool.breedsPageSettings.sortAscDom.classList.add('sort1-active')
+        pageTool.breedsPageSettings.sortDescDom.classList.remove('sort2-active')
+        requestTool.getRequest(pageTool.breedsPageSettings.limit, 'Asc')
+            .then(data => {
+                pageTool.createGrid(data)
+            });
+    }
+});
+
+pageTool.breedsPageSettings.sortDescDom = document.querySelector('.Desc')
+pageTool.breedsPageSettings.sortDescDom.addEventListener('click', () => {
+    if (pageTool.breedsPageSettings.sort === 'Desc') {
+        pageTool.breedsPageSettings.sort = 'Random';
+        pageTool.breedsPageSettings.sortDescDom.classList.remove('sort2-active')
+        requestTool.getRequest(pageTool.breedsPageSettings.limit, pageTool.breedsPageSettings.sort)
+            .then(data => {
+                pageTool.createGrid(data)
+            });
+    } else {
+        pageTool.breedsPageSettings.sort = 'Desc';
+        pageTool.breedsPageSettings.sortDescDom.classList.add('sort2-active')
+        pageTool.breedsPageSettings.sortAscDom.classList.remove('sort1-active')
+        requestTool.getRequest(pageTool.breedsPageSettings.limit, 'Desc')
+            .then(data => {
+                pageTool.createGrid(data)
+            });
+    }
+});
+
+document.querySelectorAll('.likes').forEach(buttonFavorite => {
+    buttonFavorite.addEventListener('click', () => {
+        requestTool.getLikes()
+            .then(data => {
+                pageTool.createGrid(data)
+            });
+    });
+});
+
 document.querySelectorAll('.favorite').forEach(buttonFavorite => {
     buttonFavorite.addEventListener('click', () => {
         requestTool.getFavorite()
             .then(data => {
-                pageTool.creatGrid(data)
+                pageTool.createGrid(data)
             });
     });
 });
@@ -356,18 +563,12 @@ document.querySelectorAll('.nav').forEach((navigationElement) => {
     })
     navigationElement.addEventListener('click', () => {
         pageTool.openPage(navigationElement);
-        if (pageTool.activeName === 'voting') {
-            pageTool.showImg()
-        }
-        if (pageTool.activeName === 'breeds') {
-            if (requestTool.data) {
-                pageTool.creatGrid(requestTool.data);
-            }
-            requestTool.getRequest(requestTool.url)
-                .then(data => {
-                    pageTool.creatGrid(data);
-                });
-        }
+        // if (pageTool.activeName === 'breeds' || pageTool.activeName === 'gallery') {
+        //     requestTool.getRequest(10, 'Random')
+        //         .then(data => {
+        //             pageTool.createGrid(data);
+        //         });
+        // }
     })
 })
 document.querySelectorAll('.buttons').forEach((likesNavigationPanel) => {
@@ -380,10 +581,5 @@ document.querySelectorAll('.back').forEach((backButton) => {
         pageTool.openPage('main');
     })
 })
-
-// let imgPlace = document.querySelector('.img-voting img')
-// requestTool.getRequest(requestTool.url)
-//     .then(data => imgPlace.src = requestTool.data[0].url)
-
 
 
