@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Pets</title>
+</head>
+
+<body>
+    <div class="container">
+        <nav>
+            <img src="img/logo.svg">
+            <h2>Hi intern!</h2>
+            <p>Welcome to MI 2022 Front-end test</p>
+            <p>Lets start using The Cat API</p>
+            <div class="menu">
+                <div class="nav voting-nav">
+                    <div><img src="img/voting-logo.png"></div>
+                    <div class="names">VOTING</div>
+                </div>
+                <div class="nav breeds-nav">
+                    <div><img src="img/breeds-logo.png"></div>
+                    <div class="names">BREEDS</div>
+                </div>
+                <div class="nav gallery-nav">
+                    <div><img src="img/gallery-logo.png"></div>
+                    <div class="names">GALLERY</div>
+                </div>
+            </div>
+        </nav>
+        <div class="main">
+            <div class="main-rect">
+                <img class="bacground-img" src="img/background.png">
+            </div>
+        </div>
+        <div class="voting none">
+            <div class="tools">
+                <div class="searchbar">
+                    <input placeholder="Search for breeds by name">
+                    <button class="button search"></button>
+                </div>
+                <div class="buttons">
+                    <button class="button likes"></button>
+                    <button class="button favorite"></button>
+                    <button class="button dislikes"></button>
+                </div>
+            </div>
+            <div class="content">
+                <div class="head">
+                    <button class="button back"></button>
+                    <h2><span>VOTING</span></h2>
+                </div>
+                <div class="img-voting">
+                    <img src="img/test-cat.png">
+                    <div class="voting-tools">
+                        <button class="add-like"></button>
+                        <button class="add-favorite"></button>
+                        <button class="add-dislike"></button>
+                    </div>
+                </div>
+                <div class="log-list">
+
+                </div>
+            </div>
+        </div>
+        <div class="breeds none">
+            <div class="tools">
+                <div class="searchbar">
+                    <input placeholder="Search for breeds by name">
+                    <button class="button search"></button>
+                </div>
+                <div class="buttons">
+                    <button class="button likes"></button>
+                    <button class="button favorite"></button>
+                    <button class="button dislikes"></button>
+                </div>
+            </div>
+            <div class="content">
+                <div class="head">
+                    <button class="button back"></button>
+                    <h2><span>BREEDS</span></h2>
+                    <select class="breed-select">
+                        <option>All breeds</option>
+                    </select>
+                    <select class="limit">
+                        <option>Limit: 5</option>
+                        <option selected="selected">Limit: 10</option>
+                        <option>Limit: 15</option>
+                        <option>Limit: 20</option>
+                    </select>
+                    <button class="sort1"></button>
+                    <button class="sort2"></button>
+                </div>
+                <div class="grid">
+
+                </div>
+            </div>
+        </div>
+        <div class="gallery none">
+            <div class="tools">
+                <div class="searchbar">
+                    <input placeholder="Search for breeds by name">
+                    <button class="button search"></button>
+                </div>
+                <div class="buttons">
+                    <button class="button likes"></button>
+                    <button class="button favorite"></button>
+                    <button class="button dislikes"></button>
+                </div>
+            </div>
+            <div class="content">
+                <div class="head">
+                    <button class="button back"></button>
+                    <h2><span>GALLERY</span></h2>
+                </div>
+                <div class="grid">
+
+                </div>
+            </div>
+        </div>
+        <div class="likes-page none">
+            <div class="tools">
+                <div class="searchbar">
+                    <input placeholder="Search for breeds by name">
+                    <button class="button search"></button>
+                </div>
+                <div class="buttons">
+                    <button class="button likes"></button>
+                    <button class="button favorite"></button>
+                    <button class="button dislikes"></button>
+                </div>
+            </div>
+            <div class="content">
+                <div class="head">
+                    <button class="button back"></button>
+                    <h2><span>LIKES</span></h2>
+                </div>
+                <div class="grid">
+
+                </div>
+            </div>
+        </div>
+        <div class="favorite-page none">
+            <div class="tools">
+                <div class="searchbar">
+                    <input placeholder="Search for breeds by name">
+                    <button class="button search"></button>
+                </div>
+                <div class="buttons">
+                    <button class="button likes"></button>
+                    <button class="button favorite"></button>
+                    <button class="button dislikes"></button>
+                </div>
+            </div>
+            <div class="content">
+                <div class="head">
+                    <button class="button back"></button>
+                    <h2><span>FAVORITE</span></h2>
+                </div>
+                <div class="grid">
+                    <!-- <div><img src="img/test-cat.png"><div class="delete block"></div></div> -->
+     
+                </div>
+            </div>
+        </div>
+        <div class="dislikes-page none">
+            <div class="tools">
+                <div class="searchbar">
+                    <input placeholder="Search for breeds by name">
+                    <button class="button search"></button>
+                </div>
+                <div class="buttons">
+                    <button class="button likes"></button>
+                    <button class="button favorite"></button>
+                    <button class="button dislikes"></button>
+                </div>
+            </div>
+            <div class="content">
+                <div class="head">
+                    <button class="button back"></button>
+                    <h2><span>DISLIKES</span></h2>
+                </div>
+                <div class="grid">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="main.js"></script>
+</body>
+
+</html>
