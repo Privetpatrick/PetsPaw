@@ -18,6 +18,40 @@ let pageTool = {
         sort: 'Random',
         sortAscDom: null,
         sortDescDom: null,
+        breedsList: {},
+        breedsListDom: null,
+    },
+    _convertData: function (data) {
+        let newData = [];
+        data.forEach(elem => {
+            let elemObj = {
+                image: {},
+            };
+            elemObj.id = elem.id;
+            elemObj.image_id = elem.image_id;
+            elemObj.image.url = `https://cdn2.thecatapi.com/images/${elem.image_id}.jpg`;
+            newData.push(elemObj);
+        })
+        return newData;
+    },
+    _createBreedsList: function (data) {
+        let breedsList = [];
+        data.forEach(elem => {
+            let obj = {};
+            this.breedsPageSettings.breedsList[elem.name] = elem.id;
+            obj.id = elem.id;
+            obj.name = elem.name;
+            breedsList.push(obj);
+        });
+        breedsList = breedsList.sort();
+        let breedSelectDom = document.querySelector('.breeds .breed-select')
+        this.breedsPageSettings.breedsListDom = breedSelectDom;
+        breedsList.forEach(elem => {
+            option = document.createElement('option')
+            option.classList.add(elem.id);
+            option.textContent = elem.name;
+            breedSelectDom.append(option);
+        });
     },
     createGrid: function (data, pageName = this.activeName) {
         this.gridsCollection[pageName] = true;
@@ -26,10 +60,10 @@ let pageTool = {
             this._createGridFavorite(data)
         }
         if (pageName === 'likes') {
-            this._createLikesDislikesData(data)
+            this._createLikesDislikesData(data, 'likes')
         }
         if (pageName === 'dislikes') {
-            this._createLikesDislikesData(data)
+            this._createLikesDislikesData(data, 'dislikes')
         }
         if (this.otherPages.includes(pageName) && pageName !== 'voting') {
             gridDomWrapper = document.querySelector(`.${pageName} .grid-wraper`);
@@ -61,38 +95,25 @@ let pageTool = {
             gridDomWrapper.append(gridDiv);
         }
     },
-    // _data: function (data, callback) {
-    //     let data = [];
-    //     likes.forEach(elem => {
-    //         requestTool.getId(elem.image_id)
-    //             .then(newElem => {
-    //                 let elemObj = {};
-    //                 elemObj.id = elem.id;
-    //                 elemObj.image_id = elem.image_id;
-    //                 elemObj.image.url = newElem.url
-    //                 data.push(elemObj)
-    //             });
-    //     });
-    //     return data;
-    // },
-    // _createLikesDislikesData: function (data, pageName = this.activeName) {
-    //     let likes = [];
-    //     let dislikes = [];
-    //     data.forEach(elem => {
-    //         if (elem.value === 1) {
-    //             likes.push(elem);
-    //         } else {
-    //             dislikes.push(elem);
-    //         }
-    //     });
-    //     if (likes.length > 0) {
-    //         this._data(likes, this._createGridFavorite)
-    //     }
-    //     if (dislikes.length > 0) {
-    //         dislikes = this._data(dislikes)
-    //         this._createGridFavorite(dislikes, 'dislikes')
-    //     }
-    // },
+    _createLikesDislikesData: function (data, pageName = this.activeName) {
+        let likes = [];
+        let dislikes = [];
+        data.forEach(elem => {
+            if (elem.value === 1) {
+                likes.push(elem);
+            } else {
+                dislikes.push(elem);
+            }
+        });
+        if (likes.length > 0) {
+            likes = this._convertData(likes);
+            this._createGridFavorite(likes, 'likes');
+        }
+        if (dislikes.length > 0) {
+            dislikes = this._convertData(dislikes);
+            this._createGridFavorite(dislikes, 'dislikes')
+        }
+    },
     _createGridFavorite: function (data, pageName = this.activeName) {
         let gridDomWrapper = document.querySelector(`.${pageName}-page .grid-wraper`);
         gridDomWrapper.innerHTML = '';
@@ -108,25 +129,16 @@ let pageTool = {
                 img.src = url;
                 div.append(img);
                 let deleteButton = document.createElement('div')
-                deleteButton.classList.add('delete')
-                deleteButton.classList.add('none')
+                deleteButton.classList.add('button-hover')
                 deleteButton.addEventListener('click', (e) => {
                     let id = e.target.previousSibling.classList[0]
                     let imgId = e.target.previousSibling.classList[1]
-                    requestTool.deleteFavorite(id);
+                    requestTool.deleteLikeFavoriteDislike(id, pageName);
                     userData._newLog(pageName, imgId);
                     userData._showLogs()
                     e.target.parentElement.remove()
                 });
                 div.append(deleteButton);
-                img.addEventListener('mouseover', (e) => {
-                    e.target.nextSibling.classList.add('block')
-                    e.target.nextSibling.classList.remove('none')
-                });
-                img.addEventListener('mouseout', (e) => {
-                    e.target.nextSibling.classList.add('none')
-                    e.target.nextSibling.classList.remove('block')
-                });
                 gridDiv.append(div)
             })
             gridDomWrapper.append(gridDiv);
@@ -142,25 +154,16 @@ let pageTool = {
             img.src = url;
             div.append(img);
             let deleteButton = document.createElement('div')
-            deleteButton.classList.add('delete')
-            deleteButton.classList.add('none')
+            deleteButton.classList.add('button-hover')
             deleteButton.addEventListener('click', (e) => {
                 let id = e.target.previousSibling.classList[0]
                 let imgId = e.target.previousSibling.classList[1]
-                requestTool.deleteFavorite(id);
+                requestTool.deleteLikeFavoriteDislike(id, pageName);
                 userData._newLog(pageName, imgId);
                 userData._showLogs()
                 e.target.parentElement.remove()
             });
             div.append(deleteButton);
-            img.addEventListener('mouseover', (e) => {
-                e.target.nextSibling.classList.add('block')
-                e.target.nextSibling.classList.remove('none')
-            });
-            img.addEventListener('mouseout', (e) => {
-                e.target.nextSibling.classList.add('none')
-                e.target.nextSibling.classList.remove('block')
-            });
             gridDiv.append(div)
         })
         gridDomWrapper.append(gridDiv);
@@ -338,7 +341,7 @@ let userData = {
             this.logs.forEach((elem) => {
                 let logsListDom = document.querySelector(`.${pageTool.activeName}-page .log-list`);
                 let time = this._createTime(elem.date);
-                let text = `Image ID: <b>${elem.id}</b> was removed from ${elem.type}s`
+                let text = `Image ID: <b>${elem.id}</b> was removed from ${elem.type}`
                 let logDom = document.createElement('div');
                 logDom.classList.add('log');
                 logDom.innerHTML = `<div>${time}</div><div>${text}</div><div class="log-logo-${elem.type}"></div>`;
@@ -346,8 +349,6 @@ let userData = {
             });
             this.logs = [];
         }
-
-
     },
     _createTime: function (date) {
         let hours = date.getHours();
@@ -371,7 +372,7 @@ let requestTool = {
     order: ['RANDOM', 'Asc', 'Desc'],
     url: `https://api.thecatapi.com/v1/images/search?limit=10&order=RANDOM`,
     getRequest: async function (limit = 10, order = 'RANDOM') {
-        let response = await fetch(`https://api.thecatapi.com/v1/images/search?limit=${limit}&order=${order}&size=small&has_breeds=true`, {
+        let response = await fetch(`https://api.thecatapi.com/v1/images/search?limit=${limit}&order=${order}&size=small&has_breeds=true?mime_types=jpg`, {
             headers: {
                 'Content-type': 'application/json',
                 'x-api-key': this.api
@@ -382,6 +383,35 @@ let requestTool = {
             if (limit == 1) {
                 pageTool.votingPageSettings.imgId = this.data[0].id;
             }
+            return this.data
+        } else {
+            throw new Error(`GET не сработал этот ERROR`);
+        };
+    },
+    getAllBreeds: async function () {
+        let response = await fetch(`https://api.thecatapi.com/v1/breeds`, {
+            headers: {
+                'Content-type': 'application/json',
+                'x-api-key': this.api
+            },
+        });
+        if (response.ok) {
+            this.data = await response.json();
+            return this.data
+        } else {
+            throw new Error(`GET не сработал этот ERROR`);
+        };
+    },
+    getBreedRequest: async function (id) {
+        let response = await fetch(`https://api.thecatapi.com/v1/images/search?breed_ids=${id}`, {
+            headers: {
+                'Content-type': 'application/json',
+                'x-api-key': this.api
+            },
+        });
+        if (response.ok) {
+            this.data = await response.json();
+            console.log(this.data)
             return this.data
         } else {
             throw new Error(`GET не сработал этот ERROR`);
@@ -457,8 +487,11 @@ let requestTool = {
             body: data,
         });
     },
-    deleteFavorite: async function (id) {
-        let response = await fetch(`https://api.thecatapi.com/v1/favourites/${id}`, {
+    deleteLikeFavoriteDislike: async function (id, type) {
+        if (type === 'likes' || type === 'dislikes') {
+            type = 'vote'
+        }
+        let response = await fetch(`https://api.thecatapi.com/v1/${type}s/${id}`, {
             method: 'DELETE',
             headers: {
                 'Content-type': 'application/json',
@@ -474,6 +507,17 @@ let requestTool = {
 }
 
 pageTool.showImg();
+
+requestTool.getAllBreeds()
+    .then(data => {
+        pageTool._createBreedsList(data)
+    })
+    .then(() => {
+        pageTool.breedsPageSettings.breedsListDom.addEventListener('change', (e) => {
+            let idBreed = pageTool.breedsPageSettings.breedsList[e.target.value];
+            requestTool.getBreedRequest(idBreed);
+        });
+    });
 
 requestTool.getRequest(pageTool.breedsPageSettings.limit, pageTool.breedsPageSettings.sort)
     .then(data => {
@@ -530,8 +574,17 @@ pageTool.breedsPageSettings.sortDescDom.addEventListener('click', () => {
     }
 });
 
-document.querySelectorAll('.likes').forEach(buttonFavorite => {
-    buttonFavorite.addEventListener('click', () => {
+document.querySelectorAll('.likes').forEach(buttonLike => {
+    buttonLike.addEventListener('click', () => {
+        requestTool.getLikes()
+            .then(data => {
+                pageTool.createGrid(data)
+            });
+    });
+});
+
+document.querySelectorAll('.dislikes').forEach(buttonDislike => {
+    buttonDislike.addEventListener('click', () => {
         requestTool.getLikes()
             .then(data => {
                 pageTool.createGrid(data)

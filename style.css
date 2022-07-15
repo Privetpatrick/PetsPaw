@@ -389,16 +389,28 @@ button {
     height: 20px;
 }
 
-.log-logo-like {
+.voting .log-logo-like {
     background: center no-repeat url(img/like-log.png);
 }
 
-.log-logo-favorite {
+.voting .log-logo-favorite {
     background: center no-repeat url(img/favorite-log.png);
 }
 
-.log-logo-dislike {
+.voting .log-logo-dislike {
     background: center no-repeat url(img/dislikes-log.png);
+}
+
+.likes-page .log-logo-likes {
+    background: center no-repeat url(img/delete-like.png);
+}
+
+.favorite-page .log-logo-favorite {
+    background: center no-repeat url(img/delete-like.png);
+}
+
+.dislikes-page .log-logo-dislikes {
+    background: center no-repeat url(img/delete-like.png);
 }
 
 .buttons {
@@ -487,10 +499,6 @@ button {
     border-radius: 20px;
 }
 
-.grid img:hover {
-    filter: grayscale(100%) brightness(40%) sepia(100%) hue-rotate(-50deg) saturate(600%) contrast(0.8) opacity(50%);
-}
-
 .grid>div {
     border: none;
     border-radius: 20px;
@@ -543,7 +551,6 @@ button {
 
 .dislikes-page {
     width: 50%;
-    background-color: teal;
 }
 
 /* Favorite page */
@@ -554,23 +561,80 @@ button {
 
 .grid div {
     position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.delete {
+.grid > div:hover img {
+    filter: grayscale(100%) brightness(40%) sepia(100%) hue-rotate(-50deg) saturate(600%) contrast(0.8) opacity(50%);
+}
+
+.grid > div:hover .button-hover {
+    display: block;
+}
+
+.favorite-page .button-hover {
     margin: 0;
     padding: 0;
     z-index: 2;
     position: absolute;
     width: 40px;
     height: 40px;
-    bottom: 45%;
-    left: 45%;
     border-radius: 10px;
-    background: center no-repeat url(img/delete-favorite.png);
+    background: center no-repeat url(img/delete-like.png);
     background-color: white;
+    display: none;
 }
 
-/* .favorite-page .grid img:hover .delete {
-    width: 500px;
-    display: block;
-} */
+.likes-page .button-hover {
+    margin: 0;
+    padding: 0;
+    z-index: 2;
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: center no-repeat url(img/delete-like.png);
+    background-color: white;
+    display: none;
+}
+
+.dislikes-page .button-hover {
+    margin: 0;
+    padding: 0;
+    z-index: 2;
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: center no-repeat url(img/delete-like.png);
+    background-color: white;
+    display: none;
+}
+
+.gallery .button-hover {
+    margin: 0;
+    padding: 0;
+    z-index: 2;
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: center no-repeat url(img/add-favorite2.png);
+    background-color: white;
+    display: none;
+}
+
+.gallery .button-hover {
+    margin: 0;
+    padding: 0;
+    z-index: 2;
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: center no-repeat url(img/delete-like.png);
+    background-color: white;
+    display: none;
+}
