@@ -99,6 +99,7 @@ nav p:nth-child(4) {
     width: 138px;
     height: 198px;
     border-radius: 20px;
+    cursor: pointer;
 }
 
 .menu .names {
@@ -118,6 +119,10 @@ nav p:nth-child(4) {
     background-color: #B4B7FF;
     border: 3px solid #e1e2ff;
     border-radius: 20px;
+}
+
+.voting-nav img {
+    padding-top: 20px;
 }
 
 .breeds-nav {
@@ -164,7 +169,7 @@ nav p:nth-child(4) {
     background: center no-repeat url(img/loader.gif);
     background-size: 100px;
     position: absolute;
-    z-index: 2;
+    z-index: 4;
     margin: 130px 260px;
 }
 
@@ -174,7 +179,7 @@ nav p:nth-child(4) {
     background: center no-repeat url(img/loader.gif);
     background-size: 100px;
     position: absolute;
-    z-index: 2;
+    z-index: 4;
     margin: 130px 260px;
 }
 
@@ -230,6 +235,7 @@ button {
     margin: 0 15px 0 0;
     background: center no-repeat url(img/back-default.svg);
     background-color: #FBE0DC;
+    cursor: pointer;
 }
 
 .back:hover {
@@ -289,17 +295,20 @@ button {
     border: none;
     border-radius: 15px;
     padding: 0 20px;
+    cursor: pointer;
 }
 
 .searchbar .search {
     position: relative;
-    width: 40px;
-    height: 40px;
+    width: 37px;
+    height: 38px;
     border-radius: 9px;
-    top: 7px;
-    left: -40px;
+    top: 9px;
+    left: -50px;
     background: center no-repeat url(img/search-default.svg);
     background-color: #FBE0DC;
+    cursor: pointer;
+    box-sizing: content-box;
 }
 
 .searchbar .search:hover {
@@ -339,8 +348,7 @@ button {
 
 .voting-tools .add-like:hover {
     background: center no-repeat url(img/add-like-hover.png);
-    background-color: #97EAB9;
-    opacity: 0.3;
+    background-color: #d6f8e4;
 }
 
 .voting-tools .add-favourite {
@@ -350,8 +358,8 @@ button {
 }
 
 .voting-tools .add-favourite:hover {
-    background-color: #FF868E;
-    opacity: 0.3;
+    background: center no-repeat url(img/add-favourite-hover.png);
+    background-color: #ffdbde;
 }
 
 .voting-tools .add-dislike {
@@ -362,8 +370,7 @@ button {
 
 .voting-tools .add-dislike:hover {
     background: center no-repeat url(img/add-dislike-hover.png);
-    background-color: #FFD280;
-    opacity: 0.3;
+    background-color: #fff2d9;
 }
 
 .log-list .log {
@@ -430,6 +437,10 @@ button {
 .buttons {
     right: 0;
     width: 30%;
+}
+
+.buttons button {
+    cursor: pointer;
 }
 
 /* BREEDS page */
@@ -800,6 +811,11 @@ button {
     padding-left: 40px;
 }
 
+.img-breed {
+    width: 640px;
+    height: 360px;
+}
+
 .img-breed>img {
     position: relative;
     width: 640px;
@@ -972,6 +988,6 @@ select:focus {
     background: center no-repeat url(img/loader.gif);
     background-size: 100px;
     position: absolute;
-    z-index: 2;
+    z-index: 4;
     margin: 300px 260px;
 }
