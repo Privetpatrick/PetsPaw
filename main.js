@@ -21,6 +21,21 @@ let pageTool = {
         breedsList: {},
         breedsListDom: null,
     },
+    _enableLoader: function (pageName = this.activeName) {
+        let loaderDom = document.querySelector(`.${pageName}-page .loader`)
+        loaderDom.classList.add('block')
+        loaderDom.classList.remove('none')
+    },
+    _disableLoader: function (pageName = this.activeName) {
+        let loaderDom = document.querySelector(`.${pageName}-page .loader`)
+        loaderDom.classList.remove('block')
+        loaderDom.classList.add('none')
+    },
+    _IdFromUrl: function (url) {
+        let id = url.split('/')
+        id = id[id.length - 1].split('.')[0]
+        return id;
+    },
     _clearGrit: function (pageName = this.activeName) {
         this.gridsCollection[pageName] = false;
         document.querySelector(`${pageName}-page .grid-wraper`).innerHTML = '';
@@ -42,7 +57,7 @@ let pageTool = {
         let breedsList = [];
         data.forEach(elem => {
             let obj = {};
-            this.breedsPageSettings.breedsList[elem.name] = elem.id;
+            this.breedsPageSettings.breedsList[elem.id] = elem.name;
             obj.id = elem.id;
             obj.name = elem.name;
             breedsList.push(obj);
@@ -52,7 +67,7 @@ let pageTool = {
         this.breedsPageSettings.breedsListDom = breedSelectDom;
         breedsList.forEach(elem => {
             option = document.createElement('option')
-            option.classList.add(elem.id);
+            option.setAttribute('value', `${elem.id}`)
             option.textContent = elem.name;
             breedSelectDom.append(option);
         });
@@ -68,11 +83,51 @@ let pageTool = {
         if (pageName === 'dislikes') {
             this._createLikesDislikesData(data, 'dislikes')
         }
-        if (this.otherPages.includes(pageName) && pageName !== 'voting') {
+        if (this.otherPages.includes(pageName) && pageName !== 'voting' || pageName === 'search') {
             this.gridsCollection[pageName] = true;
             gridDomWrapper = document.querySelector(`.${pageName}-page .grid-wraper`);
             gridDomWrapper.innerHTML = '';
             while (data.length > 10) {
+                if (pageName === 'gallery') {
+                    let gridDiv = this._gridForGallery(data);
+                    gridDomWrapper.append(gridDiv);
+                } else {
+                    let gridDiv = document.createElement('div')
+                    gridDiv.classList.add('grid')
+                    let newData = data.splice(0, 10)
+                    newData.forEach(elem => {
+                        let url = elem.url
+                        let div = document.createElement('div');
+                        let img = document.createElement('img');
+                        img.src = url;
+                        let hoverButton = document.createElement('div')
+                        hoverButton.classList.add('button-hover')
+                        if (elem.breeds.length > 0) {
+                            img.classList.add(`${elem.breeds[0].id}`);
+                            if (pageName === 'breeds' || pageName === 'search') {
+                                hoverButton.textContent = elem.breeds[0].name
+                            };
+                        } else {
+                            if (pageName === 'breeds' || pageName === 'search') {
+                                hoverButton.textContent = 'Unknown breed'
+                            };
+                        }
+                        hoverButton.addEventListener('click', (e) => {
+                            let idBreed = e.target.previousSibling.classList.value
+                            requestTool.getRequest(idBreed, 5)
+                                .then(data => pageTool.openPage('one-breed'))
+                        });
+                        div.append(img);
+                        div.append(hoverButton);
+                        gridDiv.append(div)
+                    })
+                    gridDomWrapper.append(gridDiv);
+                }
+            }
+            if (pageName === 'gallery') {
+                let gridDiv = this._gridForGallery(data);
+                gridDomWrapper.append(gridDiv);
+            } else {
                 let gridDiv = document.createElement('div')
                 gridDiv.classList.add('grid')
                 let newData = data.splice(0, 10)
@@ -81,22 +136,29 @@ let pageTool = {
                     let div = document.createElement('div');
                     let img = document.createElement('img');
                     img.src = url;
+                    let hoverButton = document.createElement('div')
+                    hoverButton.classList.add('button-hover')
+                    if (elem.breeds.length > 0) {
+                        img.classList.add(`${elem.breeds[0].id}`);
+                        if (pageName === 'breeds' || pageName === 'search') {
+                            hoverButton.textContent = elem.breeds[0].name
+                        };
+                    } else {
+                        if (pageName === 'breeds' || pageName === 'search') {
+                            hoverButton.textContent = 'Unknown breed'
+                        };
+                    }
+                    hoverButton.addEventListener('click', (e) => {
+                        let idBreed = e.target.previousSibling.classList.value
+                        requestTool.getRequest(idBreed, 5)
+                            .then(data => pageTool.openPage('one-breed'))
+                    });
                     div.append(img);
+                    div.append(hoverButton);
                     gridDiv.append(div)
                 })
                 gridDomWrapper.append(gridDiv);
             }
-            let gridDiv = document.createElement('div')
-            gridDiv.classList.add('grid')
-            data.forEach(elem => {
-                let url = elem.url
-                let div = document.createElement('div');
-                let img = document.createElement('img');
-                img.src = url;
-                div.append(img);
-                gridDiv.append(div)
-            })
-            gridDomWrapper.append(gridDiv);
         }
     },
     _createLikesDislikesData: function (data, pageName = this.activeName) {
@@ -138,7 +200,7 @@ let pageTool = {
                 deleteButton.addEventListener('click', (e) => {
                     this.gridsCollection[pageName] = false;
                     let id = e.target.previousSibling.classList[0]
-                    let imgId = e.target.previousSibling.classList[1]
+                    let imgId = this._IdFromUrl(e.target.previousSibling.src)
                     requestTool.deleteLikeFavouritesDislike(id, pageName);
                     userData._newLog(pageName, imgId);
                     userData._showLogs()
@@ -156,7 +218,6 @@ let pageTool = {
             let div = document.createElement('div');
             let img = document.createElement('img');
             img.classList.add(`${elem.id}`)
-            img.classList.add(`${elem.image_id}`)
             img.src = url;
             div.append(img);
             let deleteButton = document.createElement('div')
@@ -164,7 +225,7 @@ let pageTool = {
             deleteButton.addEventListener('click', (e) => {
                 this.gridsCollection[pageName] = false;
                 let id = e.target.previousSibling.classList[0]
-                let imgId = e.target.previousSibling.classList[1]
+                let imgId = this._IdFromUrl(e.target.previousSibling.src)
                 requestTool.deleteLikeFavouritesDislike(id, pageName);
                 userData._newLog(pageName, imgId);
                 userData._showLogs()
@@ -178,36 +239,65 @@ let pageTool = {
     },
     showImg: function () {
         if (this.votingPageSettings.imgDom) {
-            this.votingPageSettings.loaderDom.classList.add('block')
-            this.votingPageSettings.loaderDom.classList.remove('none')
+            this._enableLoader('voting');
             requestTool.getRequest('', 1, 'Random')
                 .then(data => {
                     this.votingPageSettings.imgShowingUrl = data[0].url;
                     this.votingPageSettings.imgDom.src = data[0].url;
-                    this.votingPageSettings.loaderDom.classList.add('block')
-                    this.votingPageSettings.loaderDom.classList.remove('none')
                     this.votingPageSettings.imgDom.addEventListener('load', (e) => {
-                        this.votingPageSettings.loaderDom.classList.add('none')
-                        this.votingPageSettings.loaderDom.classList.remove('block')
+                        this._disableLoader('voting');
                         this.votingPageSettings.imgId = data[0].id;
                     });
                 });
         } else {
             this.votingPageSettings.imgDom = document.querySelector('.img-voting img');
-            this.votingPageSettings.loaderDom = document.querySelector('.voting-page .loader')
-            this.votingPageSettings.loaderDom.classList.add('block')
-            this.votingPageSettings.loaderDom.classList.remove('none')
+            this._enableLoader('voting');
             requestTool.getRequest('', 1, 'Random')
                 .then(data => {
                     this.votingPageSettings.imgShowingUrl = data[0].url;
                     this.votingPageSettings.imgDom.src = data[0].url;
                     this.votingPageSettings.imgDom.addEventListener('load', (e) => {
-                        this.votingPageSettings.loaderDom.classList.add('none')
-                        this.votingPageSettings.loaderDom.classList.remove('block')
+                        this._disableLoader('voting');
                         this.votingPageSettings.imgId = data[0].id;
                     });
                 });
         }
+    },
+    _showBreedInfo: function (data) {
+        let infoDiv = document.querySelector('.one-breed-page .info-breed');
+        infoDiv.previousElementSibling.children[1]
+        infoDiv.previousElementSibling.innerHTML = `<div class="loader none"></div><img src="">`
+        infoDiv.innerHTML = '';
+        infoDiv.innerHTML = `
+        <div>${data[0].breeds[0].name}</div>
+        <div>Family companion cat</div>
+        <div class="wraped-content">
+            <div>
+                <b>Temperament: </b><br>
+                ${data[0].breeds[0].temperament}
+            </div>
+            <div>
+                <b>Origin: </b>${data[0].breeds[0].orgin}<br>
+                <b>Weight: </b>${data[0].breeds[0].weight.metric} kgs<br>
+                <b>Life span: </b>${data[0].breeds[0].life_span} years<br>
+            </div>
+        `;
+        infoDiv.previousElementSibling.children[1].src = data[0].url;
+        infoDiv.previousElementSibling.children[1].classList.add('block')
+        infoDiv.previousElementSibling.children[1].classList.add('selected')
+        infoDiv.previousElementSibling.previousElementSibling.children[2].textContent = data[0].breeds[0].id;
+        this.openPage('one-breed')
+        this._enableLoader();
+        infoDiv.previousElementSibling.children[1].addEventListener('load', () => {
+            this._disableLoader();
+        });
+        data.shift()
+        data.forEach(elem => {
+            let imgDom = document.createElement('img');
+            imgDom.src = elem.url;
+            imgDom.classList.add('none');
+            infoDiv.previousElementSibling.append(imgDom);
+        });
     },
     openPage: function (target) {
         if (typeof target === 'object') {
@@ -222,67 +312,128 @@ let pageTool = {
                 this.activeName = target.classList[1].split('-')[0];
                 this.activeDom = target;
                 this.pageOpened = document.querySelector(`.${this.activeName}-page`);
-                this._enable(this.pageOpened);
-                this._disable(document.querySelector('.main'));
+                this._enablePage(this.pageOpened);
+                this._disablePage(document.querySelector('.main'));
                 this.activeDom.classList.add('active-nav');
                 this.activeDom.lastElementChild.classList.add('active-names');
-                return;
             }
             if (this.likesPages.includes(target.classList[1])) {
                 this._defaultActive();
                 this.activeName = target.classList[1];
                 this.activeDom = target;
                 this.pageOpened = document.querySelector(`.${this.activeName}-page`);
-                this._enable(this.pageOpened);
+                this._enablePage(this.pageOpened);
                 this.activeDom = document.querySelector(`.${this.activeName}-page .${this.activeName}`)
                 this.activeDom.classList.add(`active-${this.activeName}`);
                 this.activeDom.classList.remove(`button`);
-                return;
             }
         } else {
             if (target == 'main') {
                 this._defaultActive();
                 this._openMain();
-                return;
+            }
+            if (target == 'one-breed') {
+                this._defaultActive();
+                this._disablePage(document.querySelector('.main'));
+                this.activeName = target;
+                this.activeDom = document.querySelector(`.${this.activeName}-page`);
+                this.pageOpened = document.querySelector(`.${this.activeName}-page`);
+                this._enablePage(this.pageOpened);
+            }
+            if (target == 'search') {
+                this._defaultActive();
+                this._disablePage(document.querySelector('.main'));
+                this.activeName = target;
+                this.activeDom = document.querySelector(`.${this.activeName}-page`);
+                this.pageOpened = document.querySelector(`.${this.activeName}-page`);
+                this._enablePage(this.pageOpened);
             }
         }
         return;
     },
     _defaultActive: function () {
-        if (this.otherPages.includes(this.activeName)) {
+        if (this.otherPages.includes(this.activeName) || this.activeName === 'one-breed' || this.activeName === 'search') {
             this.activeDom.classList.remove('active-nav');
             this.activeDom.lastElementChild.classList.remove('active-names');
-            this._disable(this.pageOpened);
+            this._disablePage(this.pageOpened);
             this.activeName = '';
             this.activeDom = null;
-            return;
         }
         if (this.likesPages.includes(this.activeName)) {
             this.activeDom.classList.remove(`active-${this.activeName}`);
             this.activeDom.classList.add(`button`);
-            this._disable(this.pageOpened);
+            this._disablePage(this.pageOpened);
             this.activeName = '';
             this.activeDom = null;
-            return;
+        }
+        if (this.activeName === 'search') {
+            document.querySelector('.search-page .grid-wraper').innerHTML = '';
         }
     },
     _openMain: function () {
         this.pageOpened = document.querySelector(`.main`)
-        this._enable(this.pageOpened);
+        this._enablePage(this.pageOpened);
     },
-    _enable: function (page) {
+    _enablePage: function (page) {
         page.classList.add('block');
         page.classList.remove('none');
     },
-    _disable: function (page) {
+    _disablePage: function (page) {
         page.classList.add('none');
         page.classList.remove('block');
+    },
+    _gridForGallery: function (data) {
+        let gridDiv = document.createElement('div')
+        gridDiv.classList.add('grid')
+        data.forEach(elem => {
+            let url = elem.url
+            let div = document.createElement('div');
+            let img = document.createElement('img');
+            img.src = url;
+            img.classList.add(`${elem.id}`)
+            if (userData.favourites[elem.id]) {
+                let noClickButton = this._buttonDelFavourite(elem.id);
+                div.append(img);
+                div.append(noClickButton);
+            } else {
+                let hoverButton = this.__buttonAddFavourite(elem.id)
+                div.append(img);
+                div.append(hoverButton);
+            }
+            gridDiv.append(div)
+        });
+        return gridDiv;
+    },
+    _buttonDelFavourite: function (imgId) {
+        let noClickButton = document.createElement('div');
+        noClickButton.classList.add('button-hover-no-click');
+        noClickButton.addEventListener('click', (e) => {
+            this.gridsCollection.favourites = false;
+            let favouritesId = userData.favourites[imgId];
+            userData.favourites[imgId] = 0;
+            noClickButton.remove();
+            this._buttonAddFavourite();
+            requestTool.deleteLikeFavouritesDislike(favouritesId, 'favourites');
+        });
+        return noClickButton;
+    },
+    _buttonAddFavourite: function (imgId) {
+        let hoverButton = document.createElement('div');
+        hoverButton.classList.add('button-hover');
+        hoverButton.addEventListener('click', (e) => {
+            this.gridsCollection.favourites = false;
+            hoverButton.remove();
+            requestTool.postFavourite(imgId)
+                .then(() => requestTool.getFavourites())
+                .then(data => this.createGrid(data, 'favourites'))
+        });
+        return hoverButton;
     },
 };
 
 let userData = {
     likes: [],
-    favourites: null,
+    favourites: {},
     dislikes: [],
     logs: [],
     newAction: function (target, type) {
@@ -344,7 +495,7 @@ let userData = {
                 let logDom = document.createElement('div');
                 logDom.classList.add('log');
                 logDom.innerHTML = `<div>${time}</div><div>${text}</div><div class="log-logo-${elem.type}"></div>`;
-                logsListDom.append(logDom);
+                logsListDom.prepend(logDom);
             });
             this.logs = [];
         } else {
@@ -355,7 +506,7 @@ let userData = {
                 let logDom = document.createElement('div');
                 logDom.classList.add('log');
                 logDom.innerHTML = `<div>${time}</div><div>${text}</div><div class="log-logo-${elem.type}"></div>`;
-                logsListDom.append(logDom);
+                logsListDom.prepend(logDom);
             });
             this.logs = [];
         }
@@ -372,7 +523,6 @@ let userData = {
 }
 
 let requestTool = {
-    data: null,
     api: '612199da-1a7c-480a-be2b-0e3c6ef1f518',
     users: {
         noUser: '',
@@ -403,8 +553,22 @@ let requestTool = {
             },
         });
         if (response.ok) {
-            this.data = await response.json();
-            return this.data
+            let data = await response.json();
+            return data
+        } else {
+            throw new Error(`GET не сработал этот ERROR`);
+        };
+    },
+    getSearchRequest: async function (value) {
+        let response = await fetch(`https://api.thecatapi.com/v1/breeds/search?q=${value}`, {
+            headers: {
+                'Content-type': 'application/json',
+                'x-api-key': this.api
+            },
+        });
+        if (response.ok) {
+            let data = await response.json();
+            return data
         } else {
             throw new Error(`GET не сработал этот ERROR`);
         };
@@ -444,8 +608,12 @@ let requestTool = {
             },
         });
         if (response.ok) {
-            userData.favourites = await response.json();
-            return userData.favourites
+            let data = await response.json();
+            data.forEach(elem => {
+                userData.favourites[elem.image_id] = elem.id;
+            });
+            console.log(userData.favourites)
+            return data;
         } else {
             throw new Error(`GET не сработал этот ERROR`);
         };
@@ -498,6 +666,7 @@ let requestTool = {
     },
 }
 
+
 pageTool.showImg();
 
 requestTool.getAllBreeds()
@@ -506,9 +675,9 @@ requestTool.getAllBreeds()
     })
     .then(() => {
         pageTool.breedsPageSettings.breedsListDom.addEventListener('change', (e) => {
-            pageTool.breedsPageSettings.idBreedSelected = pageTool.breedsPageSettings.breedsList[e.target.value];
+            pageTool.breedsPageSettings.idBreedSelected = e.target.value;
             requestTool.getRequest()
-            .then(data => pageTool.createGrid(data))
+                .then(data => pageTool.createGrid(data))
         });
     });
 
@@ -573,9 +742,9 @@ document.querySelectorAll('.likes').forEach(buttonLike => {
             return;
         } else {
             requestTool.getLikes()
-            .then(data => {
-                pageTool.createGrid(data)
-            });
+                .then(data => {
+                    pageTool.createGrid(data)
+                });
         }
     });
 });
@@ -586,9 +755,9 @@ document.querySelectorAll('.dislikes').forEach(buttonDislike => {
             return;
         } else {
             requestTool.getLikes()
-            .then(data => {
-                pageTool.createGrid(data)
-            });
+                .then(data => {
+                    pageTool.createGrid(data)
+                });
         }
     });
 });
@@ -599,9 +768,9 @@ document.querySelectorAll('.favourites').forEach(buttonFavourites => {
             return;
         } else {
             requestTool.getFavourites()
-            .then(data => {
-                pageTool.createGrid(data)
-            });
+                .then(data => {
+                    pageTool.createGrid(data)
+                });
         }
     });
 });
@@ -622,12 +791,6 @@ document.querySelectorAll('.nav').forEach((navigationElement) => {
     })
     navigationElement.addEventListener('click', () => {
         pageTool.openPage(navigationElement);
-        // if (pageTool.activeName === 'breeds' || pageTool.activeName === 'gallery') {
-        //     requestTool.getRequest()
-        //         .then(data => {
-        //             pageTool.createGrid(data);
-        //         });
-        // }
     })
 })
 document.querySelectorAll('.buttons').forEach((likesNavigationPanel) => {
@@ -641,4 +804,83 @@ document.querySelectorAll('.back').forEach((backButton) => {
     })
 })
 
+document.querySelectorAll('.next-previous').forEach(elem => {
+    elem.addEventListener('click', (e) => {
+        let imgDom = document.querySelector('.selected');
+        if (e.target.classList.value === 'next') {
+            if (imgDom.nextElementSibling) {
+                imgDom.classList.remove('selected')
+                imgDom.classList.remove('block')
+                imgDom.classList.add('none')
+                imgDom.nextElementSibling.classList.remove('none')
+                imgDom.nextElementSibling.classList.add('block')
+                imgDom.nextElementSibling.classList.add('selected')
+            } else {
+                return;
+            }
+        } else {
+            if (imgDom.previousElementSibling.src) {
+                imgDom.classList.remove('selected')
+                imgDom.classList.remove('block')
+                imgDom.classList.add('none')
+                imgDom.previousElementSibling.classList.remove('none')
+                imgDom.previousElementSibling.classList.add('block')
+                imgDom.previousElementSibling.classList.add('selected')
+            } else {
+                return;
+            }
+        }
+    });
+});
 
+document.querySelectorAll('.searchbar input').forEach(element => {
+    element.addEventListener('search', (e) => {
+        let searchValue = e.target.value;
+        requestTool.getSearchRequest(searchValue)
+            .then(data => {
+                if (data.length > 0) {
+                    let idBreed = data[0].id;
+                    requestTool.getRequest(idBreed, 10, 'Random')
+                        .then(data => {
+                            pageTool.openPage('search');
+                            document.querySelector('.search-page .searchbar input').value = searchValue
+                            document.querySelector('.search-page .search-results').innerHTML = `Search results for: <b>${searchValue}</b>`
+                            pageTool.createGrid(data)
+                        });
+                } else {
+                    pageTool.openPage('search');
+                    document.querySelector('.search-page .searchbar input').value = searchValue
+                    document.querySelector('.search-page .search-results').innerHTML = `No item found`
+                }
+            });
+        e.target.value = '';
+    });
+});
+
+document.querySelectorAll('.searchbar .search').forEach(element => {
+    element.addEventListener('click', (e) => {
+        let searchValue = e.target.previousElementSibling.value;
+        requestTool.getSearchRequest(searchValue)
+            .then(data => {
+                if (data.length > 0) {
+                    let idBreed = data[0].id;
+                    requestTool.getRequest(idBreed, 10, 'Random')
+                        .then(data => {
+                            pageTool.openPage('search');
+                            document.querySelector('.search-page .searchbar input').value = searchValue
+                            document.querySelector('.search-page .search-results').innerHTML = `Search results for: <b>${searchValue}</b>`
+                            pageTool.createGrid(data)
+                        });
+                } else {
+                    pageTool.openPage('search');
+                    document.querySelector('.search-page .searchbar input').value = searchValue
+                    document.querySelector('.search-page .search-results').innerHTML = `No item found`
+                }
+            });
+        e.target.previousElementSibling.value = '';
+    });
+});
+
+// document.querySelector('.one-breed-page .back').addEventListener('click', () => {
+//     pageTool.openPage(document.querySelector('.breeds-nav'));
+// });
