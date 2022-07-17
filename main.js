@@ -75,7 +75,7 @@ let pageTool = {
     createGrid: function (data, pageName = this.activeName) {
         let gridDomWrapper;
         if (pageName === 'favourites') {
-            this._createGridForLikesFavouritesDislikes(data)
+            this._createGridForLikesFavouritesDislikes(data, 'favourites')
         }
         if (pageName === 'likes') {
             this._createLikesDislikesData(data, 'likes')
@@ -151,7 +151,10 @@ let pageTool = {
                     hoverButton.addEventListener('click', (e) => {
                         let idBreed = e.target.previousSibling.classList.value
                         requestTool.getRequest(idBreed, 5)
-                            .then(data => pageTool.openPage('one-breed'))
+                            .then(data => {
+                                this._showBreedInfo(data);
+                                this.openPage('one-breed');
+                            });
                     });
                     div.append(img);
                     div.append(hoverButton);
@@ -390,44 +393,44 @@ let pageTool = {
             let div = document.createElement('div');
             let img = document.createElement('img');
             img.src = url;
-            img.classList.add(`${elem.id}`)
-            if (userData.favourites[elem.id]) {
-                let noClickButton = this._buttonDelFavourite(elem.id);
-                div.append(img);
-                div.append(noClickButton);
-            } else {
-                let hoverButton = this.__buttonAddFavourite(elem.id)
-                div.append(img);
-                div.append(hoverButton);
-            }
+            img.classList.add(`${elem.id}`);
+            div.append(img);
+            let hoverButtons = this._hoverButtonForGallery(elem.id);
+            div.append(hoverButtons);
             gridDiv.append(div)
         });
         return gridDiv;
     },
-    _buttonDelFavourite: function (imgId) {
-        let noClickButton = document.createElement('div');
-        noClickButton.classList.add('button-hover-no-click');
-        noClickButton.addEventListener('click', (e) => {
-            this.gridsCollection.favourites = false;
-            let favouritesId = userData.favourites[imgId];
-            userData.favourites[imgId] = 0;
-            noClickButton.remove();
-            this._buttonAddFavourite();
-            requestTool.deleteLikeFavouritesDislike(favouritesId, 'favourites');
-        });
-        return noClickButton;
-    },
-    _buttonAddFavourite: function (imgId) {
-        let hoverButton = document.createElement('div');
-        hoverButton.classList.add('button-hover');
-        hoverButton.addEventListener('click', (e) => {
-            this.gridsCollection.favourites = false;
-            hoverButton.remove();
-            requestTool.postFavourite(imgId)
-                .then(() => requestTool.getFavourites())
-                .then(data => this.createGrid(data, 'favourites'))
-        });
-        return hoverButton;
+    _hoverButtonForGallery: function (imgId) {
+        let buttonHover = document.createElement('div');
+        if (userData.favourites[imgId]) {
+            buttonHover.classList.add('button-hover-del');
+        } else {
+            buttonHover.classList.add('button-hover');
+            buttonHover.addEventListener('click', (e) => {
+                if (e.target.classList.value === 'button-hover') {
+                    this.gridsCollection.favourites = false;
+                    buttonHover.classList.remove('button-hover')
+                    requestTool.postFavourite(imgId)
+                        .then(() => requestTool.getFavourites())
+                        .then(data => {
+                            this.createGrid(data, 'favourites')
+                            buttonHover.classList.add('button-hover-del')
+                        });
+                }
+                if (e.target.classList.value === 'button-hover-del') {
+                    this.gridsCollection.favourites = false;
+                    let favouritesId = userData.favourites[imgId];
+                    userData.favourites[imgId] = 0;
+                    buttonHover.classList.remove('button-hover-del')
+                    requestTool.deleteLikeFavouritesDislike(favouritesId, 'favourites')
+                    .then(() => {
+                        buttonHover.classList.add('button-hover')
+                    });
+                }
+            });
+        }
+        return buttonHover;
     },
 };
 
@@ -681,9 +684,9 @@ requestTool.getAllBreeds()
         });
     });
 
-requestTool.getRequest()
+requestTool.getRequest('', 10, 'Random')
     .then(data => {
-        pageTool.createGrid(data, 'breeds');
+        // pageTool.createGrid(data, 'breeds');
         pageTool.createGrid(data, 'gallery');
     });
 

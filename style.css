@@ -589,6 +589,10 @@ button {
     display: block;
 }
 
+.grid>div:hover .button-hover-del {
+    display: block;
+}
+
 .favourites-page .button-hover {
     margin: 0;
     padding: 0;
@@ -660,7 +664,7 @@ button {
     display: none;
 }
 
-.gallery-page .button-hover-no-click {
+.gallery-page .button-hover-del {
     margin: 0;
     padding: 0;
     z-index: 2;
@@ -671,6 +675,7 @@ button {
     background: center no-repeat url(img/remove-from-favourite.png);
     background-color: white;
     display: none;
+    cursor: pointer;
 }
 
 .button-hover {
