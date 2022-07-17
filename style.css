@@ -554,12 +554,6 @@ button {
     grid-row: 5 / 7;
 }
 
-/* GALLERY page */
-
-.gallery-page {
-    width: 50%;
-}
-
 .likes-page {
     width: 50%;
 }
@@ -849,4 +843,135 @@ button {
     border-radius: 10px;
     background-color: white;
     display: none;
+}
+
+/* GALLERY page */
+
+.gallery-page {
+    width: 50%;
+}
+
+.gallery-page .head {
+    display: flex;
+}
+
+.gallery-page .head img {
+    margin-right: 10px;
+}
+
+.gallery-page .head .upload {
+    padding-left: 25px;
+    width: 143px;
+    height: 40px;
+    border-radius: 10px;
+    margin-left: auto;
+    margin-right: 10px;
+    background-color: #FBE0DC;
+    color: #FF868E;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.gallery-page select {
+    margin: 0;
+    border: none;
+    border-radius: 10px;
+    height: 40px;
+    background-color: #F8F8F7;
+    color: #8C8C8C;
+}
+
+.gallery-page .sort-panel {
+    position: relative;
+    width: 610px;
+    margin: 0;
+    margin-bottom: 20px;
+    padding: 10px 20px 20px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    /* align-items: center; */
+    background-color: #F8F8F7;
+    border-radius: 20px;
+}
+
+.gallery-page .sort-panel>div {
+    margin: 0;
+    padding: 0;
+    width: 50%;
+}
+
+.gallery-page .sort-panel>div>div {
+    width: 50%;
+    margin-left: 15px;
+    margin-bottom: 5px;
+    color: #8C8C8C;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    font-size: 10px;
+}
+
+.gallery-page .sort-panel select {
+    width: 290px;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    color: #1D1D1D;
+    font-size: 16px;
+    background-color: white;
+}
+
+input:focus {
+    outline: 2px solid #FBE0DC;
+}
+
+select:focus {
+    outline: 2px solid #FBE0DC;
+}
+
+.gallery-page .sort-panel .limit :nth-child(2) {
+    width: 240px;
+}
+
+.gallery-page .sort-panel .update {
+    position: absolute;
+    right: 30px;
+    margin: 0;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: center no-repeat url(img/update.png);
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.gallery-page .sort-panel .update:hover {
+    background-color: #FBE0DC;
+}
+
+.gallery-page .sort-panel .update:active {
+    background: center no-repeat url(img/active-update.png);
+    background-color: #FF868E;
+}
+
+.gallery-page .upload {
+    background: left no-repeat url(img/upload.png);
+    background-origin: content-box;
+}
+
+.gallery-page .upload:hover {
+    background: left no-repeat url(img/active-upload.png);
+    background-color: #FF868E;
+    color: white;
+    background-origin: content-box;
+}
+
+.gallery-page .loader {
+    width: 150px;
+    height: 150px;
+    background: center no-repeat url(img/loader.gif);
+    background-size: 100px;
+    position: absolute;
+    z-index: 2;
+    margin: 300px 260px;
 }

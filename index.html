@@ -79,6 +79,7 @@
                 </div>
             </div>
             <div class="content">
+                <div class="loader none"></div>
                 <div class="head">
                     <button class="button back"></button>
                     <h2><span>BREEDS</span></h2>
@@ -86,9 +87,10 @@
                         <option>All breeds</option>
                     </select>
                     <select class="limit">
+                        <option>Limit: 5</option>
                         <option selected="selected">Limit: 10</option>
                         <option>Limit: 20</option>
-                        <option>Limit: 30</option>
+                        <option>Limit: 25</option>
                     </select>
                     <button class="Asc sort1"></button>
                     <button class="Desc sort2"></button>
@@ -110,9 +112,47 @@
                 </div>
             </div>
             <div class="content">
+                <div class="loader none"></div>
                 <div class="head">
                     <button class="button back"></button>
                     <h2><span>GALLERY</span></h2>
+                    <button class="button upload">UPLOAD</button>
+                </div>
+                <div class="sort-panel">
+                    <div class="order">
+                        <div>ORDER</div>
+                        <select>
+                            <option selected="selected">Random</option>
+                            <option>Desc</option>
+                            <option>Asc</option>
+                        </select>
+                    </div>
+                    <div class="type">
+                        <div>TYPE</div>
+                        <select>
+                            <option selected="selected">All</option>
+                            <option>Static</option>
+                            <option>Animated</option>
+                        </select>
+                    </div>
+                    <div class="breed">
+                        <div>BREED</div>
+                        <select class="breed-select">
+                            <option selected="selected">None</option>
+                            <option></option>
+                        </select>
+                    </div>
+                    <div class="limit">
+                        <div>LIMIT</div>
+                        <select>
+                            <option>5 items per page</option>
+                            <option selected="selected">10 items per page</option>
+                            <option>15 items per page</option>
+                            <option>20 items per page</option>
+                            <option>25 items per page</option>
+                        </select>
+                        <button class="update"></button>
+                    </div>
                 </div>
                 <div class="grid-wraper">
                 </div>
@@ -121,7 +161,7 @@
         <div class="likes-page none">
             <div class="tools">
                 <div class="searchbar">
-                    <input placeholder="Search for breeds by name">
+                    <input type="search" placeholder="Search for breeds by name">
                     <button class="button search"></button>
                 </div>
                 <div class="buttons">
@@ -131,6 +171,7 @@
                 </div>
             </div>
             <div class="content">
+                <div class="loader none"></div>
                 <div class="head">
                     <button class="button back"></button>
                     <h2><span>LIKES</span></h2>
@@ -154,6 +195,7 @@
                 </div>
             </div>
             <div class="content">
+                <div class="loader none"></div>
                 <div class="head">
                     <button class="button back"></button>
                     <h2><span>FAVOURITES</span></h2>
@@ -177,6 +219,7 @@
                 </div>
             </div>
             <div class="content">
+                <div class="loader none"></div>
                 <div class="head">
                     <button class="button back"></button>
                     <h2><span>DISLIKES</span></h2>
@@ -228,6 +271,7 @@
                 </div>
             </div>
             <div class="content">
+                <div class="loader none"></div>
                 <div class="head">
                     <button class="button back"></button>
                     <h2><span>SEARCH</span></h2>
