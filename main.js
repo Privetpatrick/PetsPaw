@@ -93,14 +93,12 @@ let pageTool = {
                     return;
                 }
                 if (pageName === 'likes') {
-                    let likesData = this._dataForLikesDislikes(data);
-                    let gridBlock = await this._createGridForLikesFavouritesDislikes(likesData.likes, 'likes')
+                    let gridBlock = await this._createGridForLikesFavouritesDislikes(data, 'likes')
                     gridDomWrapper.append(gridBlock)
                     return;
                 }
                 if (pageName === 'dislikes') {
-                    let dislikesData = this._dataForLikesDislikes(data);
-                    let gridBlock = await this._createGridForLikesFavouritesDislikes(dislikesData.dislikes, 'likes')
+                    let gridBlock = await this._createGridForLikesFavouritesDislikes(data, 'dislikes')
                     gridDomWrapper.append(gridBlock)
                     return;
                 }
@@ -318,7 +316,7 @@ let pageTool = {
                 ${data[0].breeds[0].temperament}
             </div>
             <div>
-                <b>Origin: </b>${data[0].breeds[0].orgin}<br>
+                <b>Origin: </b>${data[0].breeds[0].origin}<br>
                 <b>Weight: </b>${data[0].breeds[0].weight.metric} kgs<br>
                 <b>Life span: </b>${data[0].breeds[0].life_span} years<br>
             </div>
@@ -749,7 +747,6 @@ requestTool.getAllBreeds()
 
 requestTool.getRequest('breeds')
     .then(data => {
-        console.log(data)
         pageTool.createGrid(data, 'breeds');
     });
 
@@ -819,11 +816,11 @@ document.querySelectorAll('.likes').forEach(buttonLike => {
         } else {
             requestTool.getLikes('likes')
                 .then(data => {
-                    if (data.length > 0) {
-                        pageTool.createGrid(data, 'likes')
+                    data = pageTool._dataForLikesDislikes(data);
+                    if (data.likes.length > 0) {
+                        pageTool.createGrid(data.likes, 'likes');
                     } else {
-                        pageTool._disableLoader('likes')
-                        pageTool._disableLoader('dislikes')
+                        pageTool._disableLoader('likes');
                     }
                 });
         }
@@ -838,11 +835,12 @@ document.querySelectorAll('.dislikes').forEach(buttonDislike => {
         } else {
             requestTool.getLikes('dislikes')
                 .then(data => {
-                    if (data.length > 0) {
-                        pageTool.createGrid(data, 'dislikes')
+                    data = pageTool._dataForLikesDislikes(data);
+                    if (data.dislikes.length > 0) {
+                        pageTool.createGrid(data.dislikes, 'dislikes')
+                    } else {
+                        pageTool._disableLoader('dislikes')
                     }
-                    pageTool._disableLoader('likes')
-                    pageTool._disableLoader('dislikes')
                 });
         }
     });
@@ -858,6 +856,8 @@ document.querySelectorAll('.favourites').forEach(buttonFavourites => {
                 .then(data => {
                     if (data.length > 0) {
                         pageTool.createGrid(data, 'favourites')
+                    } else {
+                        pageTool._disableLoader('favourites')
                     }
                 });
         }
