@@ -1,4 +1,5 @@
 let pageTool = {
+    file: null,
     data: null,
     activeName: '',
     navigationActive: null,
@@ -74,6 +75,14 @@ let pageTool = {
             this.activeName = name;
             this.navigationActive = document.querySelector(`.${name}-page`)
             this.pageOpened = document.querySelector(`.${name}-page`);
+            this._enablePage(this.pageOpened);
+            return;
+        }
+        if (name == 'upload') {
+            this.activeName = name;
+            this.pageOpened = document.querySelector(`.${name}-page`);
+            let wraperGrey = document.querySelector(`.grey-wraper`);
+            this._enablePage(wraperGrey);
             this._enablePage(this.pageOpened);
             return;
         }
@@ -182,6 +191,9 @@ let pageTool = {
                 let id = e.target.previousSibling.classList[0]
                 let imgId = this._IdFromUrl(e.target.previousSibling.src)
                 requestTool.deleteLikeFavouritesDislike(id, pageName, imgId);
+                if (pageName === 'favourites') {
+                    pageTool.createGrid(pageTool.galleryPageSettings.data, 'gallery');
+                }
                 userData._newLog(pageName, imgId);
                 userData._showLogs()
                 e.target.parentElement.remove()
@@ -381,6 +393,13 @@ let pageTool = {
         if (this.activeName === 'search') {
             document.querySelector('.search-page .grid-wraper').innerHTML = '';
         }
+        if (this.activeName === 'upload') {
+            let wraperGrey = document.querySelector(`.grey-wraper`);
+            this._disablePage(wraperGrey);
+            this._disablePage(this.pageOpened);
+            this.activeName = '';
+            this.navigationActive = null;
+        }
     },
     _openMain: function () {
         this.pageOpened = document.querySelector(`.main`)
@@ -452,6 +471,55 @@ let pageTool = {
             result.push(chunk);
         }
         return result;
+    },
+    _clearForm: function () {
+        let img = document.querySelector('.upload-page .upload-image');
+        img.src = '';
+        if (img.classList.length === 1) {
+            img.classList.add('none');
+        }
+        let input = document.querySelector('.upload-page .input');
+        if (input.classList.length > 1) {
+            input.classList.remove('none');
+            input.firstElementChild.value = '';
+        }
+        document.querySelector('.upload-page .file-selected').textContent = `No file selected`;
+        let button = document.querySelector('.upload-page .upload-photo');
+        if (button.classList.length === 1) {
+            button.classList.add('none');
+        }
+        let done = document.querySelector('.upload-page .done');
+        if (done.classList.length === 1) {
+            done.classList.add('none');
+        }
+        let error = document.querySelector('.upload-page .error');
+        if (error.classList.length === 1) {
+            error.classList.add('none');
+        }
+        let dropZone = document.querySelector('.upload-page .upload-container');
+        if (dropZone.classList.length > 1) {
+            dropZone.classList.remove('error-upload');
+        }
+    },
+    _showPhotoUpload: function (file) {
+        let fileType = file.name.split('.')[1];
+        if (fileType === 'jpg' || fileType === 'png') {
+            let formData = new FormData(document.forms.upload);
+            this.file = formData;
+            let input = document.querySelector('.upload-page .input');
+            let buttonUpload = document.querySelector('.upload-page .upload-photo');
+            let fileName = document.querySelector('.upload-page .file-selected');
+            let img = document.querySelector('.upload-page .upload-image');
+            let reader = new FileReader();
+            reader.onload = function (e) {
+                img.src = e.target.result
+                img.classList.remove('none');
+                input.classList.add('none');
+                buttonUpload.classList.remove('none');
+                fileName.textContent = `Image File Name: ${file.name}`
+            };
+            reader.readAsDataURL(file)
+        }
     },
 };
 
@@ -693,7 +761,6 @@ let requestTool = {
         }
         if (type === 'favourites') {
             userData.favourites[imgId] = 0;
-            pageTool.createGrid(pageTool.galleryPageSettings.data, 'gallery');
         }
         let response = await fetch(`https://api.thecatapi.com/v1/${type}/${id}`, {
             method: 'DELETE',
@@ -706,6 +773,29 @@ let requestTool = {
         } else {
             let data = await response.json();
             throw new Error(`GET не сработал этот ERROR`);
+        };
+    },
+    uploadImage: async function (formData = pageTool.file) {
+        formData.append('sub_id', this.users.user1);
+        pageTool._enableLoader('upload');
+        document.querySelector('.upload-page .upload-photo').classList.add('none')
+        let response = await fetch(`https://api.thecatapi.com/v1/images/upload`, {
+            method: 'POST',
+            headers: {
+                'x-api-key': this.api,
+            },
+            body: formData,
+        });
+        if (response.ok) {
+            let data = await response.json();
+            pageTool._disableLoader('upload');
+            pageTool._clearForm();
+            document.querySelector('.upload-page .done').classList.remove('none')
+        } else {
+            let data = await response.json();
+            pageTool._disableLoader('upload');
+            document.querySelector('.upload-page .upload-container').classList.add('error-upload')
+            document.querySelector('.upload-page .error').classList.remove('none')
         };
     },
 }
@@ -976,4 +1066,52 @@ document.querySelector('.gallery-page .update').addEventListener('click', () => 
         .then(data => {
             pageTool.createGrid(data, 'gallery')
         })
+});
+
+document.querySelector('.gallery-page .upload').addEventListener('click', () => {
+    pageTool.openPage('upload')
+});
+
+document.querySelector('.upload-page .close').addEventListener('click', (e) => {
+    pageTool.openPage('gallery');
+    pageTool._clearForm();
+});
+
+let dropZone = document.querySelector('.upload-page .upload-container');
+
+dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover')
+});
+
+dropZone.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    if (e.target.classList.contains("upload-container")) {
+        e.target.classList.remove("dragover");
+      }
+});
+
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover')
+    let file = e.dataTransfer.files[0];
+    pageTool._showPhotoUpload(file)
+});
+
+document.querySelector('.upload-page input').addEventListener('change', (e) => {
+    let log = document.querySelector('.upload-page .done');
+    if (log.classList.length === 1) {
+        log.classList.add('none');
+    }
+    let file = e.target.files[0]
+    pageTool._showPhotoUpload(file)
+});
+
+document.querySelector('.grey-wraper').addEventListener('click', (e) => {
+    pageTool.openPage('gallery');
+    pageTool._clearForm();
+});
+
+document.querySelector('.upload-page .upload-photo').addEventListener('click', () => {
+    requestTool.uploadImage(pageTool.file)
 });

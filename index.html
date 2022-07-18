@@ -282,7 +282,33 @@
                 </div>
             </div>
         </div>
+        <div class="upload-page none">
+            <div class="loader none"></div>
+            <button class="close"></button>
+            <h2>Upload a .jpg or .png Cat Image</h2>
+            <p>Any uploads must comply with the <a href="https://thecatapi.com/privacy" target="_blank">upload guidelines</a> or face deletion.</p>
+            <div class="upload-container">
+                <img class="upload-image none">
+                <div class="back-image"></div>
+
+                <div class="input">
+                    <form name="upload">
+                    <input id="file-input" type="file" name="file">
+                    <label for="file-input"><b>Drag here</b> your file or <b>Click here</b> to upload</label>
+                    </form>
+                </div>
+            </div>
+            <div class="file-selected">No file selected</div>
+            <button class="upload-photo none">UPLOAD PHOTO</button>
+            <div class="done none">
+                <div></div>Thanks for the Upload - Cat found!
+            </div>
+            <div class="error none">
+                <div></div>No Cat found - try a different one
+            </div>
+        </div>
     </div>
+    <div class="grey-wraper none"></div>
     <script src="main.js"></script>
 </body>
 
