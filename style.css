@@ -279,6 +279,7 @@ button {
 }
 
 .tools {
+    margin-top: 30px;
     display: flex;
     justify-content: space-between;
 }
@@ -296,7 +297,7 @@ button {
     border: none;
     border-radius: 15px;
     padding: 0 20px;
-    cursor: pointer;
+    cursor: text;
 }
 
 .searchbar .search {
@@ -386,7 +387,7 @@ button {
     background-color: #F8F8F7;
     border-radius: 10px;
     margin-bottom: 10px;
-    animation: creating 1s ease forwards;
+    animation: creating 0.4s ease forwards;
 }
 
 .log-list .log div:nth-child(1) {
@@ -461,6 +462,10 @@ button {
     color: #8C8C8C;
     padding: 8px 10px;
     margin: 0 10px;
+}
+
+.breeds-page .head button {
+    cursor: pointer;
 }
 
 .breeds-page .head>select:nth-child(3) {
@@ -684,7 +689,7 @@ button {
 }
 
 .gallery-page .button-hover {
-    animation: creating 1s ease forwards;
+    animation: creating 0.4s ease forwards;
     margin: 0;
     padding: 0;
     z-index: 2;
@@ -698,7 +703,7 @@ button {
 }
 
 .gallery-page .button-hover-del {
-    animation: creating 0.7s ease forwards;
+    animation: creating 0.4s ease forwards;
     margin: 0;
     padding: 0;
     z-index: 2;
@@ -713,7 +718,7 @@ button {
 }
 
 .button-hover {
-    animation: creating 0.7s ease forwards;
+    animation: creating 0.4s ease forwards;
     cursor: pointer;
 }
 
@@ -1037,6 +1042,7 @@ select:focus {
 }
 
 .upload-page {
+    animation: creating 0.4s ease forwards;
     margin: 30px -10px 30px 30px;
     position: absolute;
     right: 0;

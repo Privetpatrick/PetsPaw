@@ -187,7 +187,6 @@ let pageTool = {
             let deleteButton = document.createElement('div')
             deleteButton.classList.add('button-hover')
             deleteButton.addEventListener('click', (e) => {
-                this.gridsCollection[pageName] = false;
                 let id = e.target.previousSibling.classList[0]
                 let imgId = this._IdFromUrl(e.target.previousSibling.src)
                 requestTool.deleteLikeFavouritesDislike(id, pageName, imgId);
@@ -1020,7 +1019,7 @@ document.querySelectorAll('.searchbar input').forEach(element => {
             .then(data => {
                 if (data.length > 0) {
                     let idBreed = data[0].id;
-                    requestTool.getRequest('search', idBreed)
+                    requestTool.getRequest('search', idBreed, 10)
                         .then(data => {
                             pageTool.openPage('search');
                             document.querySelector('.search-page .searchbar input').value = searchValue
@@ -1044,7 +1043,7 @@ document.querySelectorAll('.searchbar .search').forEach(element => {
             .then(data => {
                 if (data.length > 0) {
                     let idBreed = data[0].id;
-                    requestTool.getRequest('search', idBreed)
+                    requestTool.getRequest('search', idBreed, 10)
                         .then(data => {
                             pageTool.openPage('search');
                             document.querySelector('.search-page .searchbar input').value = searchValue
