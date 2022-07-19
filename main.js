@@ -12,75 +12,79 @@ let pageTool = {
         imgShowingUrl: 'img/test-cat.png',
         imgDom: null,
         imgId: '',
-        loaderDom: null,
     },
     breedsPageSettings: {
-        loaderDom: null,
         limit: 10,
         sort: 'Random',
         idBreedSelected: '',
         sortAscDom: null,
         sortDescDom: null,
+        counter: 0,
+        counterDom: null,
     },
     galleryPageSettings: {
         data: null,
-        loaderDom: null,
         limit: 10,
         sort: 'Random',
         type: 'All',
         idBreedSelected: '',
     },
-    openPage: function (name) {
-        if (name === this.activeName) {
+    openPage: function (pageName) {
+        if (pageName === this.activeName) {
             return;
         }
-        if (this.otherPages.includes(name)) {
+        if (this.otherPages.includes(pageName)) {
             this._defaultActive();
-            this.activeName = name;
-            this.pageOpened = document.querySelector(`.${name}-page`);
+            this.activeName = pageName;
+            this.pageOpened = document.querySelector(`.${pageName}-page`);
             this._enablePage(this.pageOpened);
             this._disablePage(document.querySelector('.main'));
-            this.navigationActive = document.querySelector(`.${name}-nav`)
+            this.navigationActive = document.querySelector(`.${pageName}-nav`)
             this.navigationActive.classList.add('active-nav');
             this.navigationActive.lastElementChild.classList.add('active-names');
+            if (pageName === 'voting') {
+                document.querySelector(`.${pageName}-page .log-list`).innerHTML = '';
+            };
             return;
         }
-        if (this.likesPages.includes(name)) {
+        if (this.likesPages.includes(pageName)) {
             this._defaultActive();
-            this.activeName = name;
-            this.pageOpened = document.querySelector(`.${name}-page`);
+            this.activeName = pageName;
+            this.pageOpened = document.querySelector(`.${pageName}-page`);
             this._enablePage(this.pageOpened);
-            this.navigationActive = document.querySelector(`.${name}-page .${name}`)
-            this.navigationActive.classList.add(`active-${name}`);
+            this.navigationActive = document.querySelector(`.${pageName}-page .${pageName}`)
+            this.navigationActive.classList.add(`active-${pageName}`);
             this.navigationActive.classList.remove(`button`);
             return;
         }
-        if (name == 'main') {
+        if (pageName == 'main') {
             this._defaultActive();
             this._openMain();
             return;
         }
-        if (name == 'one-breed') {
+        if (pageName == 'one-breed') {
+            this.breedsPageSettings.counter = 1;
+            this.breedsPageSettings.counterDom.textContent = `1/5`;
             this._defaultActive();
             this._disablePage(document.querySelector('.main'));
-            this.activeName = name;
-            this.navigationActive = document.querySelector(`.${name}-page`)
-            this.pageOpened = document.querySelector(`.${name}-page`);
+            this.activeName = pageName;
+            this.navigationActive = document.querySelector(`.${pageName}-page`)
+            this.pageOpened = document.querySelector(`.${pageName}-page`);
             this._enablePage(this.pageOpened);
             return;
         }
-        if (name == 'search') {
+        if (pageName == 'search') {
             this._defaultActive();
             this._disablePage(document.querySelector('.main'));
-            this.activeName = name;
-            this.navigationActive = document.querySelector(`.${name}-page`)
-            this.pageOpened = document.querySelector(`.${name}-page`);
+            this.activeName = pageName;
+            this.navigationActive = document.querySelector(`.${pageName}-page`)
+            this.pageOpened = document.querySelector(`.${pageName}-page`);
             this._enablePage(this.pageOpened);
             return;
         }
-        if (name == 'upload') {
-            this.activeName = name;
-            this.pageOpened = document.querySelector(`.${name}-page`);
+        if (pageName == 'upload') {
+            this.activeName = pageName;
+            this.pageOpened = document.querySelector(`.${pageName}-page`);
             let wraperGrey = document.querySelector(`.grey-wraper`);
             this._enablePage(wraperGrey);
             this._enablePage(this.pageOpened);
@@ -119,6 +123,11 @@ let pageTool = {
                 let gridBlock = await this._creatGridBlockDefault(data, pageName);
                 gridDomWrapper.append(gridBlock)
                 return;
+            } else {
+                this.gridsCollection[pageName] = true;
+                let gridDomWrapper = document.querySelector(`.${pageName}-page .grid-wraper`);
+                gridDomWrapper.innerHTML = `<div class="not-found">You have no ${pageName} yet.</div>`
+                this._disableLoader(pageName)
             }
         }
     },
@@ -187,6 +196,7 @@ let pageTool = {
             let deleteButton = document.createElement('div')
             deleteButton.classList.add('button-hover')
             deleteButton.addEventListener('click', (e) => {
+                this.gridsCollection[pageName] = false;
                 let id = e.target.previousSibling.classList[0]
                 let imgId = this._IdFromUrl(e.target.previousSibling.src)
                 requestTool.deleteLikeFavouritesDislike(id, pageName, imgId);
@@ -198,6 +208,7 @@ let pageTool = {
                 e.target.parentElement.remove()
             });
             div.append(deleteButton);
+            this._disableLoader(pageName)
             gridBlock.append(div)
         })
         return new Promise(function (resolve) {
@@ -251,9 +262,13 @@ let pageTool = {
         let result = {};
         if (likes.length > 0) {
             result.likes = this._convertData(likes);
+        } else {
+            result.likes = [];
         }
         if (dislikes.length > 0) {
             result.dislikes = this._convertData(dislikes);
+        } else {
+            result.dislikes = [];
         }
         return result;
     },
@@ -906,11 +921,7 @@ document.querySelectorAll('.likes').forEach(buttonLike => {
             requestTool.getLikes('likes')
                 .then(data => {
                     data = pageTool._dataForLikesDislikes(data);
-                    if (data.likes.length > 0) {
                         pageTool.createGrid(data.likes, 'likes');
-                    } else {
-                        pageTool._disableLoader('likes');
-                    }
                 });
         }
     });
@@ -925,11 +936,7 @@ document.querySelectorAll('.dislikes').forEach(buttonDislike => {
             requestTool.getLikes('dislikes')
                 .then(data => {
                     data = pageTool._dataForLikesDislikes(data);
-                    if (data.dislikes.length > 0) {
-                        pageTool.createGrid(data.dislikes, 'dislikes')
-                    } else {
-                        pageTool._disableLoader('dislikes')
-                    }
+                    pageTool.createGrid(data.dislikes, 'dislikes')
                 });
         }
     });
@@ -943,11 +950,7 @@ document.querySelectorAll('.favourites').forEach(buttonFavourites => {
         } else {
             requestTool.getFavourites()
                 .then(data => {
-                    if (data.length > 0) {
                         pageTool.createGrid(data, 'favourites')
-                    } else {
-                        pageTool._disableLoader('favourites')
-                    }
                 });
         }
     });
@@ -983,8 +986,11 @@ document.querySelectorAll('.back').forEach((backButton) => {
     })
 })
 
+
+pageTool.breedsPageSettings.counterDom = document.querySelector('.next-previous span');
 document.querySelectorAll('.next-previous').forEach(elem => {
     elem.addEventListener('click', (e) => {
+
         let imgDom = document.querySelector('.selected');
         if (e.target.classList.value === 'next') {
             if (imgDom.nextElementSibling) {
@@ -994,6 +1000,8 @@ document.querySelectorAll('.next-previous').forEach(elem => {
                 imgDom.nextElementSibling.classList.remove('none')
                 imgDom.nextElementSibling.classList.add('block')
                 imgDom.nextElementSibling.classList.add('selected')
+                pageTool.breedsPageSettings.counter++;
+                pageTool.breedsPageSettings.counterDom.textContent = `${pageTool.breedsPageSettings.counter}/5`
             } else {
                 return;
             }
@@ -1005,6 +1013,8 @@ document.querySelectorAll('.next-previous').forEach(elem => {
                 imgDom.previousElementSibling.classList.remove('none')
                 imgDom.previousElementSibling.classList.add('block')
                 imgDom.previousElementSibling.classList.add('selected')
+                pageTool.breedsPageSettings.counter--;
+                pageTool.breedsPageSettings.counterDom.textContent = `${pageTool.breedsPageSettings.counter}/5`
             } else {
                 return;
             }
@@ -1087,7 +1097,7 @@ dropZone.addEventListener('dragleave', (e) => {
     e.preventDefault();
     if (e.target.classList.contains("upload-container")) {
         e.target.classList.remove("dragover");
-      }
+    }
 });
 
 dropZone.addEventListener('drop', (e) => {
