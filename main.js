@@ -492,10 +492,11 @@ let pageTool = {
         if (img.classList.length === 1) {
             img.classList.add('none');
         }
-        let input = document.querySelector('.upload-page .input');
-        if (input.classList.length > 1) {
-            input.classList.remove('none');
-            input.firstElementChild.value = '';
+        let input = document.querySelector('.upload-page input');
+        console.log(input.parentElement.parentElement.classList.length)
+        if (input.parentElement.parentElement.classList.length > 1) {
+            input.parentElement.parentElement.classList.remove('none');
+            input.value = '';
         }
         document.querySelector('.upload-page .file-selected').textContent = `No file selected`;
         let button = document.querySelector('.upload-page .upload-photo');
@@ -921,7 +922,7 @@ document.querySelectorAll('.likes').forEach(buttonLike => {
             requestTool.getLikes('likes')
                 .then(data => {
                     data = pageTool._dataForLikesDislikes(data);
-                        pageTool.createGrid(data.likes, 'likes');
+                    pageTool.createGrid(data.likes, 'likes');
                 });
         }
     });
@@ -950,7 +951,7 @@ document.querySelectorAll('.favourites').forEach(buttonFavourites => {
         } else {
             requestTool.getFavourites()
                 .then(data => {
-                        pageTool.createGrid(data, 'favourites')
+                    pageTool.createGrid(data, 'favourites')
                 });
         }
     });
