@@ -825,6 +825,9 @@ requestTool.getAllBreeds()
     .then(() => {
         document.querySelector('.breeds-page .breed-select').addEventListener('change', (e) => {
             pageTool.breedsPageSettings.idBreedSelected = e.target.value;
+            if (e.target.value === 'All breeds') {
+                pageTool.breedsPageSettings.idBreedSelected = '';
+            }
             requestTool.getRequest()
                 .then(data => pageTool.createGrid(data, 'breeds'))
         });
